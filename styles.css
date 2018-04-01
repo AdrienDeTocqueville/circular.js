@@ -1,0 +1,25 @@
+.hello{
+    color: red;
+}
+
+
+#nope{
+    color:blue;
+}
+
+h1{
+    text-align: center;
+    padding-bottom: 50px;
+}
+
+app {
+    display: flex;
+
+}
+
+choop{
+    flex: 1;
+}
+choop2{
+    flex: 1;
+}

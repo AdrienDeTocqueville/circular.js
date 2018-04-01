@@ -1,0 +1,16 @@
+{
+  "name": "circularprod",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "dev": "lite-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "lite-server": "^2.3.0",
+    "npm": "^5.8.0"
+  }
+}
