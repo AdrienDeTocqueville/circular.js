@@ -1,53 +1,35 @@
 
 
 let app = new App('app')
-
 app.add({
     tagname: "choop",
     model: {
-        name: 'marin',
+        //name: 'marin',
         age: 12
     },
-    template: `
-    <div>
-    <input type="text" placeholder='name'>
-        <p class='hello'>My name is {{model.name}} i am {{model.age}}</p>
-        <p>my age is {{(Math.random()/10)+14}}</p>
-        <button>click me</button>
-        <button>or me</button>
-        <button>or me</button>
-        <test></test>
-    </div>
-    
-    `,
-    onLoad() {
+    templateURL: "http://localhost:3000/choopTemplate.html",
+    onLoad(model) {
         this.listen('input', 'change', (e) =>{
             model.name = e.target.value
         })
+        this.listen('button', 'click', () => {
+            this.model.age++
+        })
 
+        setTimeout(()=>{model.name = 'jean'}, 3000)
+    },
+    say(){
+        
     }
 })
 
 app.add({
     tagname: 'test',
     template:`
-        
-    <ul cc-for="cat in model.cats" >
-    <li>{{name}} loves {{food}} </li>
-</ul>
+        <p>test {{$scope.chop()}}</p>
     `,
     model: {
-        name: 'blop',
-        cats: [
-            {
-                name: 'choki',
-                food: 'fish'
-            },
-            {
-                name: 'garfield',
-                food: 'lasagnas'
-            }
-        ]
+        name: 'blop'
     },
     chop(){
         return 'lol'
@@ -61,24 +43,46 @@ app.add({
         name: 'marin',
         age: 0
     },
-    template: `
-    <div>
-    <input type="text" placeholder='name'>
-        <p>My name is {{model.name}}</p>
-        <p>my age is {{model.age}}</p>
-        <button>click me</button>
-        <button>or me</button>
-        <button>or me</button>
-    </div>
-    
-    `,
+    templateURL: "choop2template.html",
     onLoad() {
         this.listen('input', 'change', (e) => {
             this.model.name = e.target.value
         })
         this.listenAll('button', 'click', () => {
             this.model.age++
-            console.log(this.model.age)
+        })
+    }
+})
+
+
+app.add({
+    tagname: "cats",
+    template:`
+    <div>
+        <p> hello {{$scope.model.catName}}</p>
+        <input type="text" cc-bind="catName" placeholder="cat name">
+        <input type="text" cc-bind="favFood" placeholder="Fav food">
+        <button class='add-btn'>add</button>
+        <button class='remove-btn'>remove</button>
+        <ul cc-repeat="$cat in $scope.model.cats">
+            <li>i am  {{$cat.name}} and i like {{$cat.food}}</li>
+        </ul>
+    </div>
+    `,
+
+    model:{
+        name: "marin",
+        cats:[
+           
+        ]
+    },
+    onLoad(){
+        this.listen('.add-btn', 'click', (e) => {
+            this.model.cats.push({name: this.model.catName, food: this.model.favFood})
+        })
+
+        this.listen('.remove-btn', 'click', (e) => {
+            this.model.cats.pop()
         })
     }
 })

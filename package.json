@@ -8,9 +8,9 @@
   },
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
-    "lite-server": "^2.3.0",
-    "npm": "^5.8.0"
-  }
+    "hyper-aurora": "^1.0.1",
+    "lite-server": "^2.3.0"
+  },
+  "description": ""
 }

@@ -6,20 +6,26 @@ class App {
 
     }
 
-
+    
     add(component) {
         component.$element = this.$el.querySelector(component.tagname)
-        this.clean(component.$element)
-        component.templateEngine = new Beard(component)
-        component.model = this.proxify(component)
-        component.find = this.find
-        component.findAll = this.findAll
-        component.listen = this.listen
-        component.listenAll = this.listenAll
-        this.components.push(component)
-        component.templateEngine.render()
-        if (component.hasOwnProperty('onLoad')) {
-            component.onLoad(component.model)
+        if (component) {
+
+            this.clean(component.$element)
+
+            if (component.model) component.model = this.proxify(component.model, component)
+            component.find = this.find
+            component.findAll = this.findAll
+            component.listen = this.listen
+            component.listenAll = this.listenAll
+            this.components.push(component)
+            component.templateEngine = new Beard(component)
+            component.templateEngine.make().then(() => {
+                if (component.hasOwnProperty('onLoad')) {
+                    component.onLoad(component.model)
+                }
+            })
+
         }
 
     }
@@ -45,9 +51,14 @@ class App {
         return Array.prototype.slice.call(this.$element.querySelectorAll(selector))
     }
 
-    proxify(component) {
-        if (!component.model) return
-        return new Proxy(component.model, {
+
+    proxify(object, component) {
+        Object.keys(object).map(prop => {
+            if (typeof object[prop] === 'object') {
+                object[prop] = this.proxify(object[prop], component)
+            }
+        })
+        return new Proxy(object, {
             set: (target, prop, val) => {
                 target[prop] = val
                 component.templateEngine.render()
@@ -57,16 +68,19 @@ class App {
     }
 
     clean(node) {
-        for (var n = 0; n < node.childNodes.length; n++) {
-            var child = node.childNodes[n];
-            if (
-                child.nodeType === 8 ||
-                (child.nodeType === 3 && !/\S/.test(child.nodeValue))
-            ) {
-                node.removeChild(child);
-                n--;
-            } else if (child.nodeType === 1) {
-                clean(child);
+        if (node) {
+
+            for (var n = 0; n < node.childNodes.length; n++) {
+                var child = node.childNodes[n];
+                if (
+                    child.nodeType === 8 ||
+                    (child.nodeType === 3 && !/\S/.test(child.nodeValue))
+                ) {
+                    node.removeChild(child);
+                    n--;
+                } else if (child.nodeType === 1) {
+                    this.clean(child);
+                }
             }
         }
     }

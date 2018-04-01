@@ -4,10 +4,23 @@ class Beard {
     constructor(component) {
         this.$el = component.$element
         this.component = component
-        this.template = this.domify(this.component.template)
+
+    }
+
+    make() {
+        let self = this
+        return new Promise((resolve, reject) => {
+            this.fetchTemplate()
+                .then(res => {
+                    this.template = this.domify(res)
+                    this.render()
+                    resolve()
+                })
+        })
     }
 
     render() {
+        if (!this.template) return
         let newDom = this.virtualify(this.template, this.component)
         this.updateElement(this.$el, newDom, this.DOM || null)
         this.DOM = newDom
@@ -22,22 +35,25 @@ class Beard {
     }
 
     updateElement($parent, newNode, oldNode, index = 0) {
-        if (!oldNode) {
-            $parent.appendChild(this.realify(newNode))
-        } else if (!newNode) {
-            $parent.removeChild($parent.childNodes[index])
-        } else if (this.hasChanged(newNode, oldNode)) {
-            $parent.replaceChild(this.realify(newNode), $parent.childNodes[index])
-        } else if (newNode.type) {
-            const nl = newNode.children.length
-            const ol = oldNode.children.length
-            for (let i = 0; i < nl || i < ol; i++) {
-                this.updateElement(
-                    $parent.childNodes[index],
-                    newNode.children[i],
-                    oldNode.children[i],
-                    i
-                )
+        if ($parent){
+
+            if (!oldNode) {
+                $parent.appendChild(this.realify(newNode))
+            } else if (!newNode) {
+                $parent.removeChild($parent.childNodes[index])
+            } else if (this.hasChanged(newNode, oldNode)) {
+                $parent.replaceChild(this.realify(newNode), $parent.childNodes[index])
+            } else if (newNode.type) {
+                const nl = newNode.children.length
+                const ol = oldNode.children.length
+                for (let i = 0; i < nl || i < ol; i++) {
+                    this.updateElement(
+                        $parent.childNodes[index],
+                        newNode.children[i],
+                        oldNode.children[i],
+                        i
+                    )
+                }
             }
         }
     }
@@ -47,6 +63,25 @@ class Beard {
             return document.createTextNode(node)
         }
         const $element = document.createElement(node.type)
+        if ("cc-bind" in node.props && node.type == 'input') {
+            $element.addEventListener('change', e => {
+                this.component.model[node.props["cc-bind"]] = e.target.value
+            })
+        }
+
+        let ons = this.ownPropsByRegex(node.props, /cc-on:/)
+        if (ons) {
+            ons.forEach(key => {
+                let expression = node.props[key]
+                let event = /\w*$/.exec(key)[0].trim()
+                let fn = new Function("scope", `{
+                    let $scope = scope;
+                    ${expression};
+                }`)
+                $element.addEventListener(event, e => fn(this.component))
+
+            })
+        }
         this.setProps($element, node)
         node.children
             .map((child) => {
@@ -77,54 +112,57 @@ class Beard {
         var children = []
         let type = node.localName
         let props = {}
+        let repeat = false
 
         //checks if textnode
-        if (node.nodeType== '3') {
-            console.log(node, "data", data)
+        if (node.nodeType == '3') {
+
             return this.evaluate(node.nodeValue, data)
 
         }
-        let attributes = Array.prototype.slice.call(node.attributes)
+
+
+        Array.prototype.slice.call(node.attributes)
             .forEach(att => {
-                if (this.isCustomProp(att.nodeName)) {
-                    if (node.children.length != 1) throw 'cc-for directive node should have unique child'
-                    let child = node.childNodes[0]
-                 
+                if (att.nodeName == 'cc-repeat') {
+                    repeat = true
                     children = []
-                    let expr = att.nodeValue
-                   
-                    if (/\w\s{1}in\s{1}[\w.]/.test(expr)) {
-                        expr = expr.split(" ")
-                        let obj = eval('data.' + expr[2])
-                        obj.map(o => children.push(this.pushNewNode(child, o)))
-                    }
+                    let expression = att.nodeValue
+                    let child = node.childNodes[0]
+                    children = this.ccrepeat(expression, child, data)
+                } else if (att.nodeName == 'cc-if') {
+                    return
                 } else {
                     props[att.nodeName] = att.nodeValue
                 }
             })
 
-        let childnodes = Array.prototype.slice.call(node.childNodes)
-            .forEach(child => children.push(this.pushNewNode(child, data)))
-        return this._v(type, props, children)
-    }
-
-    pushNewNode(child, data){
-        let newnode = this.virtualify(child, data)
+        if (!repeat)
+            Array.prototype.slice.call(node.childNodes)
+            .forEach(child => {
+                let newnode = this.virtualify(child, data)
                 if (!(typeof newnode === 'string' && newnode.trim() == '')) {
-                    return newnode
+                    children.push(newnode)
                 }
+            })
+
+
+        return this._v(type, props, children)
     }
 
     evaluate(string, data) {
         let reg = /{{.*?}}/g //update to capture more
+        let self = this
         return string.replace(reg, function (result) {
-            let dat = data
             let expression = result.substring(2, result.length - 2)
-            let fn = new Function("obj", `with(obj){
-                
-                return ${expression}
-            }`)
-            return fn(dat)
+            let obj = /\$\w*/.exec(expression)
+            let scope = (obj == "$scope") ? self.component : data
+            let fn = new Function("obj", `
+            let ${obj || "data"} = obj;
+            return ${expression}
+             `)
+            let res = fn(scope)
+            return (typeof res === 'undefined') ? '' : res
         })
     }
 
@@ -134,7 +172,9 @@ class Beard {
 
     setProps($target, node) {
         Object.keys(node.props).forEach(name => {
+            if (!this.isCustomProp(name)) {
                 this.setProp($target, name, node.props[name])
+            }
         })
     }
 
@@ -146,7 +186,47 @@ class Beard {
         return /cc-/.test(name)
     }
 
+    ccrepeat(expression, child, data, ) {
+        let expr = expression.split(" ")
+        let self = this
+        return new Function("child", "data", "self", `
+            let children =[];
+            const $scope = self.component;
+            let count = 0
+            for (${expr[0]} of ${expr[2]}){
+                count++;
+               const newChild = self.virtualify(child, ${expr[0]});
+                children.push(newChild);
+
+            }
+            return children;
+        `)(child, data, this)
+    }
+
+    ownPropsByRegex(o, reg) {
+        let props = []
+        Object.keys(o).forEach(key => {
+            if (key.match(reg)) props.push(key)
+        })
+        return props
+    }
 
 
-
+    fetchTemplate() {
+        let url = this.component.templateURL || null
+        let templateString = this.component.template || null
+        return new Promise((resolve, reject) => {
+            if (templateString) {
+                resolve(templateString)
+            } else if (url) {
+                fetch(url)
+                    .then(res => {
+                        resolve(res.text())
+                        }
+                    )
+            } else {
+                reject("no template found")
+            }
+        })
+    }
 }
