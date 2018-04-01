@@ -1,4 +1,7 @@
-class Beard {
+
+
+
+export class Beard {
 
 
     constructor(component) {
