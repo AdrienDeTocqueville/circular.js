@@ -1,4 +1,8 @@
 
+/**
+ * for rendering, root element should be added to component's element
+ * 
+ */
 
 function updateDOM(nvnode, ovnode, index = 0){
     let root;
@@ -51,5 +55,7 @@ function createElement(node){
 
 
 function setAttributes(element, attibutes){
-    //TODO:
+    for (let attribute of attributes){
+        element.setAttribute(attribute, attributes[attribute]);
+    }
 }

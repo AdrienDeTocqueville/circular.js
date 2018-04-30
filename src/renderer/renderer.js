@@ -80,17 +80,17 @@ function genChildren(elem)
 }
 
 
-var _e = function(tag, attributes, chidren, isRoot) // create element
+export function _e(tag, attributes, chidren, isRoot) // create element
 {
     return new VNode(tag, attributes, children, null, isRoot);
 }
 
-var _t = function(text) // create text
+export function _t(text) // create text
 {
     return new VNode(null, null, null, text);
 }
 
-var _l = function(container, generator) // create loop
+export function _l(container, generator) // create loop
 {
     // range loop
     if (typeof container === 'number')
