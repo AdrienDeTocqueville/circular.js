@@ -1,12 +1,3 @@
-function domFromString(string) {
-    let el = document.createElement('div');
-    el.innerHTML = string;
-    return el.firstChild;
-}
-
-
-
-
 /**
  * 
  * @param {ASTElement} ASTElement 
@@ -16,7 +7,7 @@ function domFromString(string) {
  * 
  * removes the given attribute from attibute list and returns it's value
  */
-function getAndRemoveAttribute(ASTElement, property) {
+export function getAndRemoveAttribute(ASTElement, property) {
     let value;
     let props = ASTElement.props;
     for (let i = 0; i < props.length; i++) {
@@ -34,7 +25,7 @@ function getAndRemoveAttribute(ASTElement, property) {
  * 
  * @returns Array<DOMElement> return an array of the children of an element
  */
-function getChildNodes(element) {
+export function getChildNodes(element) {
     let children = []
     for (let i = 0; i < element.childNodes.length; i++) {
         children.push(element.childNodes[i])
@@ -50,7 +41,7 @@ function getChildNodes(element) {
  * @param {DOMElement} element 
  * @returns {Array<{attributeName, AttributeValue}>}
  */
-function getAttributes(element) {
+export function getAttributes(element) {
     let attr = [];
     for (let i = 0; i < element.attributes.length; i++) {
         let o = {}
@@ -68,6 +59,6 @@ function getAttributes(element) {
  * 
  * @return {string}
  */
-function getTagName(element) {
+export function getTagName(element) {
     return element.tagName;
 }

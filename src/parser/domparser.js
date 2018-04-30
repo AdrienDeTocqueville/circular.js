@@ -2,13 +2,12 @@ import {setProp, extend} from '../utils/index.js'
 import {getAndRemoveAttribute,getAttributes,getChildNodes, getTagName} from './index.js'
 
 
-export default function domFromString(string)
+export function domFromString(string)
 {
     let el = document.createElement('div');
     el.innerHTML = string;
     return el.firstElementChild;
 }
-
 
 /**
  * 
@@ -34,7 +33,7 @@ function createASTElement(tag, attribs, parent) {
  * @param {DOMElement} element 
  * @param {ASTElement} parent  (Optional) 
  */
-export default function parseDOM(element, parent) {
+export function parseDOM(element, parent) {
 
     let currentElement = element;
 
