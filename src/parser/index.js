@@ -1,5 +1,4 @@
-import parseDOM from './domparser'
-import domFromString from './domFromString'
+import {domFromString, parseDOM} from './domparser.js'
 
 export * from './utils.js'
 export {
