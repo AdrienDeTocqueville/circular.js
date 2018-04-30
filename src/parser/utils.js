@@ -54,7 +54,7 @@ function getAttributes(element) {
     let attr = [];
     for (let i = 0; i < element.attributes.length; i++) {
         let o = {}
-        o[element.attributes[i].nodeName] = element.attributes[i].nodeValue;
+        setProp(o, element.attributes[i].nodeName, element.attributes[i].nodeValue);
         attr.push(o);
     }
     return attr;

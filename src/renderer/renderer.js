@@ -1,10 +1,10 @@
-export function getRenderer(rootElem)
+function render(rootElem)
 {
-    var generator = genElement(rootElem);
-    return new Function("with(this) {return " + generator + ";}");
+    generator = generate(rootElem);
+    var render = new Function("with(this) {return " + generator + ";}");
 }
 
-export function getFunctions()
+function getFunctions()
 {
     return {_e, _t, _l};
 }
@@ -17,24 +17,12 @@ function genElement(elem)
     var attributes = genAttribs(elem);
     var children = genChildren(elem);
 
-    var generator = `_e(${tag}, ${attributes}, ${children}, ${elem.isRoot})`;
-
-    if (elem.for)
-    {
-        generator = `_l(${elem.for}, ` +
-                    `function(${elem.alias})` +
-                    `{ return ${generator}; })`;
-    }
-
-    return generator;
+    return `_e(${tag}, ${attributes}, ${children}, &{elem.isRoot})`;
 }
 
 function genTextNode(elem)
 {
-    var text = element.text.replace(/[\n\r]/g, "");
-    text = text.replace(/{{/g, "\" + String(").replace(/}}/g, ") + \"");
-
-    return `_t('${text}')`;
+    return `_t('&{elem.text}')`;
 }
 
 
@@ -47,9 +35,9 @@ function genAttribs(elem)
 {
     var attributes = {};
 
-    for (var attrib of elem.attribs)
+    for (attrib in elem.attribs)
     {
-        for (var key in attrib)
+        for (var key of attrib)
             attributes[key] = attrib[key];
     }
 
@@ -80,50 +68,46 @@ function genChildren(elem)
 }
 
 
-var _e = function(tag, attributes, chidren, isRoot) // create element
+var _e = function(tag, attributes, content) // create element
 {
-    return new VNode(tag, attributes, children, null, isRoot);
+    // var el = document.createElement(tag);
+
+    // if (attributes.className)
+    //     el.setAttribute("class", attributes.className);
+
+    // for (var attr in attributes.attrs)
+    //     el.setAttribute(attr, attributes.attrs[attr]);
+
+    // for (var property in attributes.style)
+    //     el.style[property] = attributes.style[property];
+
+    // for (var type in attributes.on)
+    //     el.addEventListener(type, attributes.on[type]);
+
+
+
+    // for (var c of content) {
+    //     if (c.constructor === Array) {
+    //         for (var child of c)
+    //             el.appendChild(child);
+    //     } else
+    //         el.appendChild(c);
+    // }
+
+    // return el;
 }
 
-var _t = function(text) // create text
+var _t = function(str) // create text
 {
-    return new VNode(null, null, null, text);
+    // return document.createTextNode(str);
 }
 
 var _l = function(container, generator) // create loop
 {
-    // range loop
-    if (typeof container === 'number')
-    {
-        elems = new Array(container);
+    // var els = new Array(container.length);
 
-        for (var i = 0; i < container; i++)
-            elems[i] = generator(i)
-    }
+    // for (var i = 0; i < container.length; i++)
+    //     els[i] = generator(container[i], i);
 
-    // array loop
-    else if (Array.isArray(container))
-    {
-        var l = container.length;
-        elems = new Array(l);
-
-        for (var i = 0; i < l; i++)
-            elems[i] = generator(container[i], i)
-      }
-
-    // object loop
-    else if (isObject(container))
-    {
-        var keys = Object.keys(container);
-        var l = keys.length;
-        elems = new Array(l);
-
-        for (var i = 0; i < l; i++)
-        {
-            key = keys[i];
-            elems[i] = generator(container[key], key, i);
-        }
-    }
-
-    return elems;
+    // return els;
 }
