@@ -6,7 +6,7 @@
  * 
  * Helper method to set property to an object
  */
-function setProp(object, key, value) {
+function                                                                                    @@      @@@@@@@@@                                                                                                                                   &a(object, key, value) {
     Object.defineProperty(o, key, {
         value: value
     })

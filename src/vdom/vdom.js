@@ -16,9 +16,11 @@ function updateDom(newvnode,oldvnode){
 
 function createElement(node){
     if (node.text){
-        return document.createTextNode(text);
+        node.el = document.createTextNode(text); 
+        return node.el;
     } else { 
         const $el = document.createElement(node.tagname);
+        node.el = $el;
         setAttributes($el, node.attibutes);
         node.children.map(child => createElement(child)).forEach(element => {
             $el.appendChild(element);
