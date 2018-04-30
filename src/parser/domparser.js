@@ -66,17 +66,6 @@ export function parseDOM(element, parent) {
     return ASTElem;
 }
 
-
-
-
-
-
-
-
-
-
-
-
 /**
  * 
  * @description process all "on"s events bound to element
