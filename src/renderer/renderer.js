@@ -1,6 +1,6 @@
-export function getRenderer(rootElem)
+export function getRenderer(ASTRoot)
 {
-    var generator = genElement(rootElem);
+    var generator = genElement(ASTRoot);
     return new Function("with(this) {return " + generator + ";}");
 }
 
@@ -31,7 +31,7 @@ function genElement(elem)
 
 function genTextNode(elem)
 {
-    var text = element.text.replace(/[\n\r]/g, "");
+    var text = elem.text.replace(/[\n\r]/g, "");
     text = text.replace(/{{/g, "\" + String(").replace(/}}/g, ") + \"");
 
     return `_t('${text}')`;
@@ -82,12 +82,15 @@ function genChildren(elem)
 
 export function _e(tag, attributes, chidren, isRoot) // create element
 {
-    return new VNode(tag, attributes, children, null, isRoot);
+    var vnode = new VNode(tag, attributes, children);
+    vnode.isRoot = isRoot;
+
+    return vnode;
 }
 
 export function _t(text) // create text
 {
-    return new VNode(null, null, null, text);
+    return createTextNode(text);
 }
 
 export function _l(container, generator) // create loop

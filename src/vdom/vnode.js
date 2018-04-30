@@ -1,5 +1,5 @@
 
-class VNode {
+export class VNode {
 
     constructor(tagname, attributes, children, text){
 
@@ -13,6 +13,6 @@ class VNode {
     }
 }
 
-function createTextNode(text){
+export function createTextNode(text){
     return new VNode(undefined, undefined, undefined, text);
 }
