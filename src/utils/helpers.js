@@ -6,10 +6,11 @@
  * 
  * Helper method to set property to an object
  */
-function                                                                                    @@      @@@@@@@@@                                                                                                                                   &a(object, key, value) {
-    Object.defineProperty(o, key, {
+function setProp(object, key, value) {
+    Object.defineProperty(object, key, {
         value: value,
         enumerable: true
+
     })
 }
 
@@ -27,4 +28,14 @@ function extend(from, to) {
 }
 
 
-
+/**
+ * 
+ * @param {object} object  
+ * 
+ * @returns {boolean}
+ * 
+ * Checks wether param is an object 
+ */
+function isObject (object) {
+    return object !== null && typeof object === 'object'
+  }
