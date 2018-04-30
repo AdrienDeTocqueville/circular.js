@@ -21,7 +21,6 @@ function getAndRemoveAttribute(ASTElement, property) {
     let props = ASTElement.props;
     for (let i = 0; i < props.length; i++) {
         let val = props[i][property]
-        console.log(val)
         if (val) {
             ASTElement.props = ASTElement.props.slice(i, 1);
             return val;
