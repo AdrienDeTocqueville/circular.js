@@ -70,5 +70,5 @@ function getAttributes(element) {
  * @return {string}
  */
 function getTagName(element) {
-    return element.localName;
+    return element.tagName;
 }

@@ -9,15 +9,16 @@ import {getAndRemoveAttribute,getAttributes,getChildNodes, getTagName} from './i
 /**
  * 
  * @param {string} tag 
- * @param {array} props 
+ * @param {array} attribs 
  * @param {ASTElement} parent 
  */
-function createASTElement(tag, props, parent) {
+function createASTElement(tag, attribs, parent) {
     return {
         tag,
         type: 1,
-        props: props,
+        attribs: attribs,
         parent,
+        isRoot: !parent,
         children: []
     }
 }
@@ -34,19 +35,14 @@ export default function parseDOM(element, parent) {
     let currentElement = element;
 
     let ASTElem;
-    let props = [];
+    let attribs = [];
     let tagName = '';
 
-    props = getAttributes(currentElement);
+    attribs = getAttributes(currentElement);
     tagName = getTagName(currentElement);
 
-    ASTElem = createASTElement(tagName, props, parent);
+    ASTElem = createASTElement(tagName, attribs, parent);
 
-
-
-    if (!parent) {
-        ASTElem.isRoot = true;
-    }
 
     let childrenElement = getChildNodes(element);
 
