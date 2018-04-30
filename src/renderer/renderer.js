@@ -1,6 +1,12 @@
+import {createTextNode, VNode} from '../vdom/index.js'
+
+
 export function getRenderer(ASTRoot)
 {
+
+    
     var generator = genElement(ASTRoot);
+    console.log(generator)
     return new Function("with(this) {return " + generator + ";}");
 }
 
@@ -32,7 +38,7 @@ function genElement(elem)
 function genTextNode(elem)
 {
     var text = elem.text.replace(/[\n\r]/g, "");
-    text = text.replace(/{{/g, "\" + String(").replace(/}}/g, ") + \"");
+    text = text.replace(/{{/g, "' + String(").replace(/}}/g, ") + '");
 
     return `_t('${text}')`;
 }
@@ -80,7 +86,7 @@ function genChildren(elem)
 }
 
 
-export function _e(tag, attributes, chidren, isRoot) // create element
+export function _e(tag, attributes, children, isRoot) // create element
 {
     var vnode = new VNode(tag, attributes, children);
     vnode.isRoot = isRoot;
