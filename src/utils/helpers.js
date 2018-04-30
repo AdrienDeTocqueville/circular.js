@@ -9,7 +9,7 @@
 function setProp(object, key, value) {
     Object.defineProperty(object, key, {
         value: value,
-        enumerable: true
+        enumerable: tru
 
     })
 }
