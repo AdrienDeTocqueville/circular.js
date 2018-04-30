@@ -31,11 +31,11 @@ function genTag(elem)
     return '"' + elem.tag + '"';
 }
 
-function genAttribs(elem)
+function generatorAttribs(elem)
 {
     var attributes = {};
 
-    for (attrib in elem.attribs)
+    for (var attrib in elem.attribs)
     {
         for (var key of attrib)
             attributes[key] = attrib[key];
