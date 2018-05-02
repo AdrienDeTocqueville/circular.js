@@ -1,5 +1,5 @@
 import {setProp, extend} from '../utils/index.js'
-import {getAndRemoveAttribute,getAttributes,getChildNodes, getTagName} from './index.js'
+import {getAndRemoveAttribute} from './index.js'
 
 
 export function domFromString(string)
@@ -33,32 +33,19 @@ function createASTElement(tag, attribs, parent) {
  * @param {DOMElement} element 
  * @param {ASTElement} parent  (Optional) 
  */
-export function parseDOM(element, parent) {
+export function parseDOM(element, parent)
+{
+    let ASTElem = createASTElement(element.tagName, element.attributes, parent);
+    processcFor(ASTElem);
 
-    let currentElement = element;
-
-    let ASTElem;
-    let attribs = [];
-    let tagName = '';
-
-    attribs = getAttributes(currentElement);
-
-    tagName = getTagName(currentElement);
-
-    ASTElem = createASTElement(tagName, attribs, parent);
-
-    processFor(ASTElem);
-
-    let childrenElement = getChildNodes(element);
-
-    childrenElement.forEach(element => {
-        if (element.nodeType === 1) {
-            ASTElem.children.push(parseDOM(element, currentElement));
-        } else if (element.nodeType === 3) {
-            if (element.data.trim() != "") {
+    Array.prototype.forEach.call(element.childNodes, child => {
+        if (child.nodeType === 1) {
+            ASTElem.children.push(parseDOM(child, element));
+        } else if (child.nodeType === 3) {
+            if (child.data.trim() != "") {
                 ASTElem.children.push({
                     type: 3,
-                    text: element.data
+                    text: child.data
                 });
             }
 
@@ -73,15 +60,15 @@ export function parseDOM(element, parent) {
  * @description process all "on"s events bound to element
  * @param {ASTElement} el 
  */
-function processOn(el){
+function processcOn(el){
 //TODO
 }
 
-function processFor(el) {
-
+function processcFor(el)
+{
     let cfor = getAndRemoveAttribute(el, 'c-for')
     if (cfor) {
-        let res = parseCFor(cfor)
+        let res = parsecFor(cfor)
         if (res) {
             extend(res, el)
         }
@@ -93,10 +80,10 @@ function processFor(el) {
  * @param {string} expr 
  */
 
-function parseCFor(expr) {
+function parsecFor(attrib)
+{
     let reg = /([^]*?)\s+(?:in|of)\s+([^]*)/;
-    let matches = expr.match(reg)
-    if (!matches) return;
+    let matches = attrib.value.match(reg)
     return {
         for: matches[2].trim(),
         alias: matches[1].trim()

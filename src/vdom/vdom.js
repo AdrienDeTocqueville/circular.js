@@ -41,13 +41,12 @@ function haschanged(node1, node2) {
 
 function createElement(node) {
     if (node.text) {
-        node.el = document.createTextNode(node.text);
-        return node.el;
+        return document.createTextNode(node.text);
     } else {
-        const $el = document.createElement(node.tagname);
+        const $el = document.createElement(node.tagName);
         node.el = $el;
       
-        setAttributes($el, node.attibutes);
+        setAttributes($el, node.attributes);
         
         node.children.map(child => createElement(child)).forEach(element => {
             $el.appendChild(element);
