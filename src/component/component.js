@@ -18,19 +18,14 @@ import {updateDOM} from '../vdom/index.js'
 export default class Component {
 
     constructor(params) {
-
+        this.vues= [];
         this.tagName = params.tagName;
-        this.element = document.querySelector(this.tagName)
         this.template = params.template;
         proxy(this, params.model, ()=>{
-            //TODO: logic to call when model changes
+            this.vues.forEach(vue => vue.update())
         });
         extend(params.methods,this);
-
         this.init();
-        
-        this.element.appendChild(this.ovd.el)
-
     }
 
     init() {
@@ -43,7 +38,9 @@ export default class Component {
         
         this.render = getRenderer(ast);
         this.ovd = this.render()
-        
-        updateDOM(this.ovd);
+    }
+
+    register(vue){
+        this.vues.push(vue);
     }
 }

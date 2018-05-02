@@ -9,7 +9,8 @@ export class VNode
         this.el = undefined;
         this.isRoot = !!this.parent;
         this.text = text;
-        this.bindToChildren()
+        this.bindToChildren();
+       
     }
 
     bindToChildren(){
