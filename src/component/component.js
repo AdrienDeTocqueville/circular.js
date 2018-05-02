@@ -10,13 +10,10 @@ import {
     _t
 } from '../renderer/index.js'
 
-import {
-    proxy
-} from './index.js'
-
+import {proxy} from './index.js'
 import {extend} from '../utils/index.js'
-
 import {updateDOM} from '../vdom/index.js'
+
 
 export default class Component {
 
@@ -29,9 +26,6 @@ export default class Component {
             //TODO: logic to call when model changes
         });
         extend(params.methods,this);
-        this._e = _e.bind(this);
-        this._l = _l.bind(this);
-        this._t = _t.bind(this);
 
         this.init();
         
@@ -42,10 +36,14 @@ export default class Component {
     init() {
         let dom = domFromString(this.template);
         let ast = parseDOM(dom);
+
+        this._e = _e.bind(this);
+        this._l = _l.bind(this);
+        this._t = _t.bind(this);
+        
         this.render = getRenderer(ast);
         this.ovd = this.render()
-        console.log(this.ovd)
+        
         updateDOM(this.ovd);
-
     }
 }

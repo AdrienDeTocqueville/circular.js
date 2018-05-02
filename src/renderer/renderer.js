@@ -4,14 +4,23 @@ import {isObject} from '../utils/index.js'
 
 export function getRenderer(ASTRoot)
 {
-
-    var generator = genElement(ASTRoot);
-    
-    return new Function("with(this) {return " + generator + ";}");
+    var generator = genNode(ASTRoot);
+    return new Function("with(this){return " + generator + ";}");
 }
 
 
 
+function genNode(node)
+{
+    if (node.type == 1)
+        return genElement(node);
+
+    else if (node.type == 3)
+        return genTextNode(node);
+
+    else
+        throw new Error("Element type not supported (yet?)");
+}
 
 function genElement(elem)
 {
@@ -19,13 +28,13 @@ function genElement(elem)
     var attributes = genAttribs(elem);
     var children = genChildren(elem);
 
-    var generator = `_e(${tag}, ${attributes}, ${children}, ${elem.isRoot})`;
+    var generator = `_e(${tag},${attributes},${children},${elem.isRoot})`;
 
     if (elem.for)
     {
-        generator = `_l(${elem.for}, ` +
+        generator = `_l(${elem.for},` +
                     `function(${elem.alias})` +
-                    `{ return ${generator}; })`;
+                    `{return ${generator};})`;
     }
 
     return generator;
@@ -34,7 +43,7 @@ function genElement(elem)
 function genTextNode(elem)
 {
     var text = elem.text.replace(/[\n\r]/g, "");
-    text = text.replace(/{{/g, "' + String(").replace(/}}/g, ") + '");
+    text = text.replace(/{{/g, "'+String(").replace(/}}/g, ")+'");
 
     return `_t('${text}')`;
 }
@@ -50,42 +59,20 @@ function genAttribs(elem)
     var attributes = {};
 
     for (var attrib of elem.attribs)
-    {
-        for (var key in attrib)
-            attributes[key] = attrib[key];
-    }
+        attributes[attrib.name] = attrib.value;
 
     return JSON.stringify(attributes);
 }
 
 function genChildren(elem)
 {
-    var children = [];
-
-    for (var child of elem.children)
-    {
-        var childContent;
-
-        if (child.type == 1)
-            childContent = genElement(child);
-
-        else if (child.type == 3)
-            childContent = genTextNode(child);
-
-        else
-            throw new Error("Element type not supported (yet?)");
-
-        children += childContent + ', ';
-    }
-
-    return '[' + children + ']';
+    return `[${ elem.children.map( child => genNode(child) ).join(',') }]`;
 }
 
 
 export function _e(tag, attributes, children, isRoot) // create element
 {
-    var vnode = new VNode(tag, attributes, children);
-    vnode.children = [].concat.apply([],vnode.children)
+    var vnode = new VNode(tag, attributes, [].concat.apply([], children));
     vnode.isRoot = isRoot;
 
     return vnode;
@@ -98,23 +85,24 @@ export function _t(text) // create text
 
 export function _l(container, generator) // create loop
 {
-    var elems;
+    var elems, i, l;
+
     // range loop
     if (typeof container === 'number')
     {
         elems = new Array(container);
 
-        for (var i = 0; i < container; i++)
+        for (i = 0; i < container; i++)
             elems[i] = generator(i)
     }
 
     // array loop
     else if (Array.isArray(container))
     {
-        var l = container.length;
+        l = container.length;
         elems = new Array(l);
 
-        for (var i = 0; i < l; i++)
+        for (i = 0; i < l; i++)
             elems[i] = generator(container[i], i)
       }
 
@@ -122,10 +110,10 @@ export function _l(container, generator) // create loop
     else if (isObject(container))
     {
         var keys = Object.keys(container);
-        var l = keys.length;
+        l = keys.length;
         elems = new Array(l);
 
-        for (var i = 0; i < l; i++)
+        for (i = 0; i < l; i++)
         {
             let key = keys[i];
             elems[i] = generator(container[key], key, i);

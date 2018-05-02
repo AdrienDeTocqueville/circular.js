@@ -5,26 +5,22 @@ let c = new Component({
     template: `
         <div>
             <div c-for="chat in chats">
-                <div c-for="i in 9">
-                    <p>{{i}} is {{chat}}</p>
-                </div>
+                <p id="test" c-for="i in 2">
+                    {{chat}} {{i}} fois
+                </p>
             </div>
 
-            <ul c-for="arme, type in armes">
-                <li>le {{type}} est un {{arme}}</li>
-            </ul>
+            <ol>
+                <li c-for="arme, type in armes">Le {{arme}} est un {{type}}</li>
+            </ol>
         </div>
-
-
-        
-        
     `,
 
     model: {
         chats: ['garfield', 'chat de schrodinger', 'chat botté'],
         armes: {
             fusil: "m16",
-            pistolet: "1911",
+            pistolet: "desert eagle",
             sniper:"barett"
         }
     }

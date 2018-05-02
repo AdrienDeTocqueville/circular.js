@@ -1,9 +1,9 @@
 
-export class VNode {
-
-    constructor(tagname, attributes, children, text){
-
-        this.tagname = tagname;
+export class VNode
+{
+    constructor(tagName, attributes, children, text)
+    {
+        this.tagName = tagName;
         this.attributes = attributes;
         this.children = children;
         this.el = undefined;
@@ -13,6 +13,7 @@ export class VNode {
     }
 }
 
-export function createTextNode(text){
+export function createTextNode(text)
+{
     return new VNode(undefined, undefined, undefined, text);
 }
