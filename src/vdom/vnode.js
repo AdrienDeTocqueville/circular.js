@@ -7,10 +7,20 @@ export class VNode {
         this.attributes = attributes;
         this.children = children;
         this.el = undefined;
-        this.isRoot = false;
-        this.parent;
+        this.isRoot = !!this.parent;
         this.text = text;
+        this.bindToChildren()
     }
+
+    bindToChildren(){
+        if (!this.children) return;
+        for (let child of this.children){
+            child.parent = this;
+            console.log("parent" ,child.parent)
+        }
+    }
+
+
 }
 
 export function createTextNode(text){

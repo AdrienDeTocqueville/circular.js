@@ -5,6 +5,8 @@
 
 export default function updateDOM(nvnode, ovnode) {
     let root;
+
+    console.log(nvnode.parent)
     if (!ovnode) {
         if (nvnode.isRoot) {
             createElement(nvnode);
