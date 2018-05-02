@@ -2,11 +2,12 @@ import { Component } from "../component";
 
 export default class Vue{
 
-    constructor(name){
+    constructor(name, template){
         this.name = name;
         this.init();
         this.isActive = false;
         this.app = undefined;
+        this.template = template;
 
     }
 
