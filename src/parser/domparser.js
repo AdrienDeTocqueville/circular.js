@@ -42,10 +42,12 @@ export function parseDOM(element, parent) {
     let tagName = '';
 
     attribs = getAttributes(currentElement);
+
     tagName = getTagName(currentElement);
 
     ASTElem = createASTElement(tagName, attribs, parent);
 
+    processFor(ASTElem);
 
     let childrenElement = getChildNodes(element);
 
@@ -95,7 +97,7 @@ function parseCFor(expr) {
     let reg = /([^]*?)\s+(?:in|of)\s+([^]*)/;
     let matches = expr.match(reg)
     if (!matches) return;
-    return res = {
+    return {
         for: matches[2].trim(),
         alias: matches[1].trim()
     }

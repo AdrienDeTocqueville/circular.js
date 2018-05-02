@@ -1,19 +1,15 @@
 import {createTextNode, VNode} from '../vdom/index.js'
+import {isObject} from '../utils/index.js'
 
 
 export function getRenderer(ASTRoot)
 {
 
-    
     var generator = genElement(ASTRoot);
-    console.log(generator)
+    
     return new Function("with(this) {return " + generator + ";}");
 }
 
-export function getFunctions()
-{
-    return {_e, _t, _l};
-}
 
 
 
@@ -64,7 +60,7 @@ function genAttribs(elem)
 
 function genChildren(elem)
 {
-    var children = '';
+    var children = [];
 
     for (var child of elem.children)
     {
@@ -89,6 +85,7 @@ function genChildren(elem)
 export function _e(tag, attributes, children, isRoot) // create element
 {
     var vnode = new VNode(tag, attributes, children);
+    vnode.children = [].concat.apply([],vnode.children)
     vnode.isRoot = isRoot;
 
     return vnode;
@@ -101,6 +98,7 @@ export function _t(text) // create text
 
 export function _l(container, generator) // create loop
 {
+    var elems;
     // range loop
     if (typeof container === 'number')
     {
@@ -129,7 +127,7 @@ export function _l(container, generator) // create loop
 
         for (var i = 0; i < l; i++)
         {
-            key = keys[i];
+            let key = keys[i];
             elems[i] = generator(container[key], key, i);
         }
     }

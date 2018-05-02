@@ -5,27 +5,37 @@ import {
 
 import {
     getRenderer,
-    getFunctions,
-    _e, _l, _t
+    _e,
+    _l,
+    _t
 } from '../renderer/index.js'
 
+import {
+    proxy
+} from './index.js'
 
+import {extend} from '../utils/index.js'
+
+import {updateDOM} from '../vdom/index.js'
 
 export default class Component {
 
     constructor(params) {
 
-        this.tagname = params.tagname;
+        this.tagName = params.tagName;
+        this.element = document.querySelector(this.tagName)
         this.template = params.template;
-        this.number = 10;
-        this.methods = params.methods;
+        proxy(this, params.model, ()=>{
+            //TODO: logic to call when model changes
+        });
+        extend(params.methods,this);
         this._e = _e.bind(this);
         this._l = _l.bind(this);
         this._t = _t.bind(this);
 
         this.init();
-        this.ovd = undefined;
-        console.log(this.render())
+        
+        this.element.appendChild(this.ovd.el)
 
     }
 
@@ -33,6 +43,9 @@ export default class Component {
         let dom = domFromString(this.template);
         let ast = parseDOM(dom);
         this.render = getRenderer(ast);
+        this.ovd = this.render()
+        console.log(this.ovd)
+        updateDOM(this.ovd);
 
     }
 }

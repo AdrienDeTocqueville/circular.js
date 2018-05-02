@@ -36,7 +36,8 @@ export function extend(from, to) {
  * 
  * Checks wether param is an object 
  */
-export function isObject (object)
-{
+export function isObject(object) {
     return object !== null && typeof object === 'object'
 }
+
+

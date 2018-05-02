@@ -9,11 +9,11 @@
  */
 export function getAndRemoveAttribute(ASTElement, property) {
     let value;
-    let props = ASTElement.props;
+    let props = ASTElement.attribs;
     for (let i = 0; i < props.length; i++) {
         let val = props[i][property]
         if (val) {
-            ASTElement.props = ASTElement.props.slice(i, 1);
+            ASTElement.attribs = ASTElement.attribs.slice(i, 1);
             return val;
         }
     }
