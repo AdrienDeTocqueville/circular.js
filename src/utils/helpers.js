@@ -1,22 +1,5 @@
 /**
  * 
- * @param {Object} object 
- * @param {string} key 
- * @param {string} value 
- * 
- * Helper method to set property to an object
- */
-export function setProp(object, key, value) {
-    Object.defineProperty(object, key, {
-        value: value,
-        enumerable: true
-
-    })
-}
-
-
-/**
- * 
  * @param {object} dest 
  * @param {object} src
  */

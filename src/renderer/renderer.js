@@ -56,7 +56,10 @@ function genTag(elem)
 
 function genAttribs(elem)
 {
-    return `{${ Object.keys(elem.attribs).map( attrib => `"${attrib}":"${elem.attribs[attrib]}"` ).join(',') }}`;
+    let attribs = Object.keys(elem.attribs).map( attrib => `'${attrib}':'${elem.attribs[attrib]}'` );
+    let bindings = elem.bindings.map( binding => `'${binding.arg}':${binding.val}` );
+    
+    return `{${ attribs.concat(bindings).join(',') }}`;
 }
 
 function genChildren(elem)

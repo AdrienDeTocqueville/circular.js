@@ -28,7 +28,7 @@ export default class App
                 let route = node.attributes["c-route"];
 
                 if (route)
-                    this.router.addRoute(route, component, node);
+                    this.router.addRoute(route.value, component, node);
                 else
                     component.instantiate(node);
             }

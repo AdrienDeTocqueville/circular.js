@@ -6,12 +6,13 @@ app.component("navbar", {
     template: `
         <ul>
             <li c-for="link in links">
-                <a id="bonjou" class="test" c-bind:href="link.url">{{link.label}}</a>
+                <a c-bind:class="(active==link.label)?'active':'none'" c-bind:href="link.url">{{link.label}}</a>
             </li>
         </ul>
     `,
 
     model: {
+        active: 'Home',
         links: [
             {
                 label: 'Home',
@@ -36,6 +37,24 @@ app.component("navbar", {
 app.component("home", {
     template: `
         <p>Home</p>
+    `,
+});
+
+app.component("news", {
+    template: `
+        <p>News</p>
+    `,
+});
+
+app.component("contact", {
+    template: `
+        <p>Contact</p>
+    `,
+});
+
+app.component("about", {
+    template: `
+        <p>About</p>
     `,
 });
 
