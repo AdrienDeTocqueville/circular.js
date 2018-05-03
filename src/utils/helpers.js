@@ -17,14 +17,14 @@ export function setProp(object, key, value) {
 
 /**
  * 
- * @param {object} to 
- * @param {object} _from 
+ * @param {object} dest 
+ * @param {object} src
  */
-export function extend(from, to) {
-    for (var key in from) {
-        to[key] = from[key];
+export function extend(dest, src) {
+    for (let key in src) {
+        dest[key] = src[key];
     }
-    return to
+    return dest
 }
 
 

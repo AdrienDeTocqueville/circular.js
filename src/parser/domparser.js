@@ -16,14 +16,27 @@ export function domFromString(string)
  * @param {ASTElement} parent 
  */
 function createASTElement(tag, attribs, parent) {
-    return {
+    let element = {
         tag,
         type: 1,
-        attribs: attribs,
+        attribs: {},
+        children: [],
         parent,
-        isRoot: !parent,
-        children: []
+        isRoot: !parent
     }
+
+    for (let attrib of attribs)
+    {
+        if (attrib.name.search(/^c-/) != -1)
+            processDirective(element, attrib);
+
+        else
+            element.attribs[attrib.name] = attrib.value;
+    }
+
+    console.log(element);
+
+    return element;
 }
 
 
@@ -36,7 +49,8 @@ function createASTElement(tag, attribs, parent) {
 export function parseDOM(element, parent)
 {
     let ASTElem = createASTElement(element.tagName, element.attributes, parent);
-    processcFor(ASTElem);
+    //processcFor(ASTElem);
+    //processcBind(ASTElem);
 
     Array.prototype.forEach.call(element.childNodes, child => {
         if (child.nodeType === 1) {
@@ -55,40 +69,34 @@ export function parseDOM(element, parent)
     return ASTElem;
 }
 
-/**
- * 
- * @description process all "on"s events bound to element
- * @param {ASTElement} el 
- */
-function processcOn(el){
-//TODO
-}
-
-function processcFor(el)
+function processDirective(element, directive)
 {
-    let cfor = getAndRemoveAttribute(el, 'c-for')
-    if (cfor) {
-        let res = parsecFor(cfor)
-        if (res) {
-            extend(res, el)
-        }
+    var dir = directive.name.substring(2).split(/:/);
+    var directiveName = dir[0],
+        directiveArg = dir[1];
+
+    switch (directiveName)
+    {
+        case "for":
+            extend(element, parsecFor(directive.value));
+            break;
+            
+        case "bind":
+            console.log("bind directive")
+            break;
+        
+        case "on":
+            break;
     }
-
 }
-/**
- * 
- * @param {string} expr 
- */
 
-function parsecFor(attrib)
+function parsecFor(value)
 {
     let reg = /([^]*?)\s+(?:in|of)\s+([^]*)/;
-    let matches = attrib.value.match(reg)
+    let matches = value.match(reg);
+    // TODO: error checking
     return {
         for: matches[2].trim(),
         alias: matches[1].trim()
     }
 }
-
-
-

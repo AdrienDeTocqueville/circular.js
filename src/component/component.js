@@ -30,17 +30,25 @@ export default class Component
 
     instantiate(element)
     {
-        let obj = extend({}, this.model); // NOTE: make deeper copy ?
+        let instance = extend({}, this.model); // NOTE: make deeper copy ?
 
-        obj._e = _e.bind(obj);
-        obj._l = _l.bind(obj);
-        obj._t = _t.bind(obj);
-        obj.render = this.render;
+        instance._e = _e.bind(instance);
+        instance._l = _l.bind(instance);
+        instance._t = _t.bind(instance);
 
-        obj.vroot = obj.render();
-        updateDOM(obj.vroot);
+        instance.original = element;
+        instance.render = this.render;
 
-        element.parentNode.replaceChild(obj.vroot.el, element);
-        return obj;
+        instance.vroot = instance.render();
+
+        updateDOM(instance.vroot);
+        element.parentNode.replaceChild(instance.vroot.el, element);
+
+        return instance;
+    }
+
+    destroy(instance)
+    {
+        instance.vroot.el.parentNode.replaceChild(instance.original, instance.vroot.el);
     }
 }

@@ -4,36 +4,40 @@ export default class Router
 	{
 		this.routes = [];
 
-        const doHashChange = () => { this.onHashChange(); };
+		const doHashChange = () => { this.onHashChange(); };
 
-        window.addEventListener('hashchange', doHashChange);
-        document.addEventListener('DOMContentLoaded', doHashChange);
+		window.addEventListener('hashchange', doHashChange);
+		document.addEventListener('DOMContentLoaded', doHashChange);
 	}
 
-	addRoute(url, component, element)
+	addRoute(url, component, node)
 	{
 	    this.routes.push(
 	    {
-            url,
+			url: new RegExp(url, 'gi'),
+			instance: null,
 			component,
-			element
-        });
+			node
+		});
 	}
 
 	onHashChange()
 	{
-        var hash = window.location.hash;
+		let hash = window.location.hash;
 		if (!hash.length)
 			window.location.hash = hash = "";
 
-        var routes = this.routes.filter(route => hash.match(new RegExp(route.url, 'gi')));
-
-		if (routes.length)
+		for (let route of this.routes)
 		{
-			for (let route of routes)
+			if ( hash.match(route.url) )
 			{
-				// TODO: register component to list of active elements for destruction
-				route.component.instantiate(route.element);
+				if (!route.instance)
+					route.instance = route.component.instantiate(route.node);
+			}
+			else if (route.instance)
+			{
+				route.component.destroy(route.instance);
+				route.instance = null;
 			}
 		}
 	}

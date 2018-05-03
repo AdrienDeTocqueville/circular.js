@@ -3,10 +3,10 @@ import Router from '../router/router.js';
 
 export default class App
 {
-    constructor(router)
+    constructor()
     {
         this.components = {};
-        this.router = router || new Router();
+        this.router = new Router();
     }
 
     component(tagName, data)
@@ -16,21 +16,21 @@ export default class App
 
     mount(selector)
     {
-        this.element = document.querySelector(selector);
+        this.node = document.querySelector(selector);
 
         for (let tag in this.components)
         {
-            let elements = this.element.querySelectorAll(tag);
+            let nodes = this.node.querySelectorAll(tag);
             let component = this.components[tag];
 
-            for (let element of elements)
+            for (let node of nodes)
             {
-                let route = element.attributes["c-route"];
+                let route = node.attributes["c-route"];
 
                 if (route)
-                    this.router.addRoute(route, component, element);
+                    this.router.addRoute(route, component, node);
                 else
-                    component.instantiate(element);
+                    component.instantiate(node);
             }
         }
     }
