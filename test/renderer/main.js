@@ -1,7 +1,17 @@
-import Component from '../../src/component/component.js'
+import App from '../../src/app/app.js'
+import Router from '../../src/router/router.js';
 
-let c = new Component({
-    tagName: 'hello',
+/*
+let router = new Router({
+    routes: {
+        // "^#/room/(.*)$": "hello" // Additional way to specify route
+    }
+});
+*/
+
+let app = new App();
+
+app.component("hello", {
     template: `
         <div>
             <div c-for="chat in chats">
@@ -24,4 +34,6 @@ let c = new Component({
             sniper:"barett"
         }
     }
-})
+});
+
+app.mount("#app");

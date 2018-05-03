@@ -16,7 +16,6 @@ export class VNode
         if (!this.children) return;
         for (let child of this.children){
             child.parent = this;
-            console.log("parent" ,child.parent)
         }
     }
 

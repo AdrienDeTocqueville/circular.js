@@ -15,35 +15,32 @@ import {extend} from '../utils/index.js'
 import {updateDOM} from '../vdom/index.js'
 
 
-export default class Component {
-
-    constructor(params) {
-
-        this.tagName = params.tagName;
-        this.element = document.querySelector(this.tagName)
+export default class Component
+{
+    constructor(params)
+    {
         this.template = params.template;
-        proxy(this, params.model, ()=>{
-            //TODO: logic to call when model changes
-        });
-        extend(params.methods,this);
-
-        this.init();
+        this.model = params.model;
         
-        this.element.appendChild(this.ovd.el)
-
-    }
-
-    init() {
         let dom = domFromString(this.template);
         let ast = parseDOM(dom);
 
-        this._e = _e.bind(this);
-        this._l = _l.bind(this);
-        this._t = _t.bind(this);
-        
         this.render = getRenderer(ast);
-        this.ovd = this.render()
-        
-        updateDOM(this.ovd);
+    }
+
+    instantiate(element)
+    {
+        let obj = extend({}, this.model); // NOTE: make deeper copy ?
+
+        obj._e = _e.bind(obj);
+        obj._l = _l.bind(obj);
+        obj._t = _t.bind(obj);
+        obj.render = this.render;
+
+        obj.vroot = obj.render();
+        updateDOM(obj.vroot);
+
+        element.parentNode.replaceChild(obj.vroot.el, element);
+        return obj;
     }
 }
