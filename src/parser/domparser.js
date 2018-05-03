@@ -48,9 +48,9 @@ function createASTElement(tag, attribs, parent)
         tag,
         type: 1,
         attribs: {},
-        children: [],
-        bindings: [],
         on: {},
+        bindings: [],
+        children: [],
         parent,
         isRoot: !parent
     }
@@ -69,33 +69,26 @@ function createASTElement(tag, attribs, parent)
 
 function processDirective(element, directive)
 {
-    var dir = directive.name.substring(2).split(/:/);
-    var directiveName = dir[0],
+    let dir = directive.name.substring(2).split(/:/);
+    let directiveName = dir[0],
         directiveArg = dir[1];
 
-    switch (directiveName)
-    {
-        case "for":
-            parseFor(element, directive.value)
-            break;
-            
-        case "bind":
-            parseBind(element, directiveArg, directive.value);
-            break;
-        
-        case "on":
-            parseOn(element, directiveArg, directive.value);
-            break;
+    const parsers = {
+        "for": parseFor,
+        "bind": parseBind,
+        "on": parseOn
     }
+
+    parsers[directiveName](element, directiveArg, directive.value);
 }
 
-function parseFor(element, value)
+function parseFor(el, arg, val)
 {
     let reg = /([^]*?)\s+(?:in|of)\s+([^]*)/;
-    let matches = value.match(reg);
+    let matches = val.match(reg);
     // TODO: error checking
     
-    extend(element, {
+    extend(el, {
         for: matches[2].trim(),
         alias: matches[1].trim()
     });
@@ -108,5 +101,5 @@ function parseBind(el, arg, val)
 
 function parseOn(el, arg, val)
 {
-    el.on[arg] = new Function(`with(this){${val};}`);
+    el.on[arg] = `function(ccEvent) {${val};}`;
 }

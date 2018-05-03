@@ -25,10 +25,10 @@ function genNode(node)
 function genElement(elem)
 {
     let tag = genTag(elem);
-    let attributes = genAttribs(elem);
+    let data = genData(elem);
     let children = genChildren(elem);
 
-    let generator = `_e(${tag},${attributes},${children},${elem.isRoot})`;
+    let generator = `_e(${tag},${data},${children},${elem.isRoot})`;
 
     if (elem.for)
     {
@@ -54,12 +54,19 @@ function genTag(elem)
     return `'${ elem.tag }'`;
 }
 
-function genAttribs(elem)
+function genData(elem)
 {
+    // attribs
     let attribs = Object.keys(elem.attribs).map( attrib => `'${attrib}':'${elem.attribs[attrib]}'` );
     let bindings = elem.bindings.map( binding => `'${binding.arg}':${binding.val}` );
-    
-    return `{${ attribs.concat(bindings).join(',') }}`;
+
+    //on
+    let listeners = Object.keys(elem.on).map( event => `'${event}':${elem.on[event]}` );
+
+    return `{
+        attributes: {${ attribs.concat(bindings).join(',') }},
+        listeners: {${ listeners.join(',') }}
+    }`;
 }
 
 function genChildren(elem)
@@ -68,9 +75,9 @@ function genChildren(elem)
 }
 
 
-export function _e(tag, attributes, children, isRoot) // create element
+export function _e(tag, data, children, isRoot) // create element
 {
-    let vnode = new VNode(tag, attributes, [].concat.apply([], children));
+    let vnode = new VNode(tag, data, [].concat.apply([], children));
     vnode.isRoot = isRoot;
 
     return vnode;

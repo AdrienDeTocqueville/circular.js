@@ -6,7 +6,7 @@ app.component("navbar", {
     template: `
         <ul>
             <li c-for="link in links">
-                <a c-bind:class="(active==link.label)?'active':'none'" c-bind:href="link.url">{{link.label}}</a>
+                <a c-on:click="active=link.label; console.log(active)" c-bind:class="(active==link.label)?'active':'none'" c-bind:href="link.url">{{link.label}}</a>
             </li>
         </ul>
     `,
