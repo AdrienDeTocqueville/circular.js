@@ -1,4 +1,4 @@
-import App from '../../src/app/app.js'
+import App from '/dist/circular.js'
 
 let app = new App();
 

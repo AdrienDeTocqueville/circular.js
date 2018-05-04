@@ -21,14 +21,14 @@ import {
 } from '../vdom/index.js'
 
 
-export default class Component {
+export default class Component
+{
     constructor(params) {
         this.params = params
         this.template = params.template;
         if (params.model){
-            this.model = JSON.parse(JSON.stringify(params.model));//deep copy
+            this.model = JSON.parse(JSON.stringify(params.model)); // deep copy
             proxy(this, this.model, ()=>{
-                
                 let nvroot = this.render();
                 updateDOM(nvroot, this.vroot);
                 this.vroot = nvroot;
@@ -41,9 +41,9 @@ export default class Component {
 
         this.render = getRenderer(ast);
 
-        this._e = _e.bind(this);
-        this._l = _l.bind(this);
-        this._t = _t.bind(this);
+        this._e = _e;
+        this._l = _l;
+        this._t = _t;
 
         this.vroot = this.render();
 
@@ -52,8 +52,6 @@ export default class Component {
     }
 
     clone(element) {
-
-        console.log("new instance")
         let instance = new Component(this.params)
 
         instance.original = element;

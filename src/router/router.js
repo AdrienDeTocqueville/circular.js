@@ -1,8 +1,9 @@
 export default class Router
 {
-	constructor()
+	constructor(defaultURL)
 	{
 		this.routes = [];
+		this.defaultURL = defaultURL || "";
 
 		const doHashChange = () => { this.onHashChange(); };
 
@@ -25,7 +26,7 @@ export default class Router
 	{
 		let hash = window.location.hash;
 		if (!hash.length)
-			window.location.hash = hash = "";
+			window.location.hash = hash = this.defaultURL;
 
 		for (let route of this.routes)
 		{

@@ -1,5 +1,5 @@
-import Component from '../component/component.js'
-import Router from '../router/router.js';
+import {Component} from '../component/index.js';
+import {Router} from '../router/index.js';
 
 export default class App
 {
@@ -16,7 +16,7 @@ export default class App
 
     mount(selector)
     {
-        this.node = document.querySelector(selector);
+        this.node = document.querySelector(selector || "body");
 
         for (let tag in this.components)
         {
