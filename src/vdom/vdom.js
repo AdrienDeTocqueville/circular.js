@@ -37,7 +37,7 @@ function haschanged(node1, node2) {
    ( node1.text && node1 !== node2 )||
     node2.type !== node1.type; 
 
-    if(node1.attributes && node2.attributes){
+    if(node1.data && node2.data){
         return JSON.stringify(node1.data.attributes) !== JSON.stringify(node2.data.attributes) || test;
     }
 
