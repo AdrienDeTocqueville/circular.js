@@ -36,8 +36,15 @@ app.component("navbar", {
 
 app.component("home", {
     template: `
+        <div>
         <p>Home</p>
+        <button c-on:click="count++">click me</button>
+        <p>{{count}}</p>
+        </div>
     `,
+    model:{
+        count: 0
+    }
 });
 
 app.component("news", {

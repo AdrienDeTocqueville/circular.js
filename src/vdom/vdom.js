@@ -15,11 +15,12 @@ export default function updateDOM(nvnode, ovnode) {
     } else if (!nvnode) {
         ovnode.el.remove();
     } else if (haschanged(nvnode, ovnode)) {
+
         nvnode.parent.el.replaceChild(createElement(nvnode), ovnode.el)
     } else if (nvnode.children) {
         nvnode.el = ovnode.el;
-        const nl = newNode.children.length
-        const ol = oldNode.children.length
+        const nl = nvnode.children.length
+        const ol = ovnode.children.length
         for (let i = 0; i < nl || i < ol; i++) {
             updateDOM(nvnode.children[i], ovnode.children[i])
         }
@@ -32,15 +33,22 @@ export default function updateDOM(nvnode, ovnode) {
  * @param {*} node2 
  */
 function haschanged(node1, node2) {
-    return typeof node1 !== typeof node2 ||
-        typeof node1 === 'string' && node1 !== node2 ||
-        node2.type !== node1.type ||
-        JSON.stringify(node1.data.attributes) !== JSON.stringify(node2.data.attributes)
+    let test = typeof node1 !== typeof node2 ||
+   ( node1.text && node1 !== node2 )||
+    node2.type !== node1.type; 
+
+    if(node1.attributes && node2.attributes){
+        return JSON.stringify(node1.data.attributes) !== JSON.stringify(node2.data.attributes) || test;
+    }
+
+    return test;
+        
 }
 
 function createElement(node) {
     if (node.text) {
-        return document.createTextNode(node.text);
+        node.el =  document.createTextNode(node.text);
+        return node.el;
     } else {
         const $el = document.createElement(node.tagName);
         node.el = $el;

@@ -30,7 +30,7 @@ export default class App
                 if (route)
                     this.router.addRoute(route.value, component, node);
                 else
-                    component.instantiate(node);
+                    component.clone(node);
             }
         }
     }

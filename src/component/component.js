@@ -10,45 +10,60 @@ import {
     _t
 } from '../renderer/index.js'
 
-import {proxy} from './index.js'
-import {extend} from '../utils/index.js'
-import {updateDOM} from '../vdom/index.js'
+import {
+    proxy
+} from './index.js'
+import {
+    extend
+} from '../utils/index.js'
+import {
+    updateDOM
+} from '../vdom/index.js'
 
 
-export default class Component
-{
-    constructor(params)
-    {
+export default class Component {
+    constructor(params) {
+        this.params = params
         this.template = params.template;
-        this.model = params.model;
-        
+        if (params.model){
+            this.model = JSON.parse(JSON.stringify(params.model));//deep copy
+            proxy(this, this.model, ()=>{
+                
+                let nvroot = this.render();
+                updateDOM(nvroot, this.vroot);
+                this.vroot = nvroot;
+            })
+        }
+
+
         let dom = domFromString(this.template);
         let ast = parseDOM(dom);
 
         this.render = getRenderer(ast);
+
+        this._e = _e.bind(this);
+        this._l = _l.bind(this);
+        this._t = _t.bind(this);
+
+        this.vroot = this.render();
+
+        updateDOM(this.vroot);
+        
     }
 
-    instantiate(element)
-    {
-        let instance = extend({}, this.model); // NOTE: make deeper copy ?
+    clone(element) {
 
-        instance._e = _e.bind(instance);
-        instance._l = _l.bind(instance);
-        instance._t = _t.bind(instance);
+        console.log("new instance")
+        let instance = new Component(this.params)
 
         instance.original = element;
-        instance.render = this.render;
-
-        instance.vroot = instance.render();
-
-        updateDOM(instance.vroot);
+        
         element.parentNode.replaceChild(instance.vroot.el, element);
 
         return instance;
     }
 
-    destroy(instance)
-    {
+    destroy(instance) {
         instance.vroot.el.parentNode.replaceChild(instance.original, instance.vroot.el);
     }
 }

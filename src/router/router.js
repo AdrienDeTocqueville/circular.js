@@ -32,7 +32,7 @@ export default class Router
 			if ( hash.match(route.url) )
 			{
 				if (!route.instance)
-					route.instance = route.component.instantiate(route.node);
+					route.instance = route.component.clone(route.node);
 			}
 			else if (route.instance)
 			{
