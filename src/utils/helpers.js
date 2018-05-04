@@ -10,17 +10,28 @@ export function extend(dest, src) {
     return dest
 }
 
-
 /**
  * 
- * @param {object} object  
+ * @param {object} obj  
  * 
  * @returns {boolean}
  * 
  * Checks wether param is an object 
  */
-export function isObject(object) {
-    return object !== null && typeof object === 'object'
+export function isObject(obj) {
+    return obj !== null && typeof obj === 'object'
+}
+
+/**
+ * 
+ * @param {object} obj  
+ * 
+ * @returns {boolean}
+ * 
+ * Checks wether param is a function 
+ */
+export function isFunction(obj) {
+    return obj instanceof Function;
 }
 
 

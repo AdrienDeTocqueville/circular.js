@@ -6,7 +6,7 @@ app.component("navbar", {
     template: `
         <ul>
             <li c-for="link in links">
-                <a c-on:click="active=link.label; console.log(active)" c-bind:class="(active==link.label)?'active':'none'" c-bind:href="link.url">{{link.label}}</a>
+                <a c-on:click="active=link.label" c-bind:class="(active==link.label)?'active':'none'" c-bind:href="link.url">{{link.label}}</a>
             </li>
         </ul>
     `,
@@ -37,9 +37,9 @@ app.component("navbar", {
 app.component("home", {
     template: `
         <div>
-        <p>Home</p>
-        <button c-on:click="count++">click me</button>
-        <p>{{count}}</p>
+            <p>Home</p>
+            <button c-on:click="count++">click me</button>
+            <p>{{count}}</p>
         </div>
     `,
     model:{

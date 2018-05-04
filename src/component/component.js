@@ -1,27 +1,14 @@
-import {parseDOM} from '../parser/index.js'
+import {proxy} from './index.js'
 
-import {
-    getRenderer,
-    _e,
-    _l,
-    _t
-} from '../renderer/index.js'
-
-import {
-    proxy
-} from './index.js'
-import {
-    extend
-} from '../utils/index.js'
-import {
-    updateDOM
-} from '../vdom/index.js'
+import {updateDOM} from '../vdom/index.js'
+import {_e, _l, _t} from '../renderer/index.js'
 
 
 export default class Component
 {
-    constructor(model, renderer, methods) {
-        proxy(this, model, ()=>{
+    constructor(model, methods, renderer, element)
+    {
+        proxy(this, model, () => {
             let nvroot = this.render();
             updateDOM(nvroot, this.vroot);
             this.vroot = nvroot;
@@ -35,23 +22,23 @@ export default class Component
         this._l = _l;
         this._t = _t;
 
+        this.original = element;
         this.vroot = this.render();
 
-        updateDOM(this.vroot);    
+        updateDOM(this.vroot);
+        this.display();
     }
 
-    clone(element) {
-        let instance = new Component(this.params)
-
-        instance.original = element;
-        
-        element.parentNode.replaceChild(instance.vroot.el, element);
-
-        return instance;
+    display()
+    {
+        if (this.original.isConnected)
+            this.original.parentNode.replaceChild(this.vroot.el, this.original);
     }
 
-    destroy(instance) {
-        instance.vroot.el.parentNode.replaceChild(instance.original, instance.vroot.el);
+    hide()
+    {
+        if (this.vroot.el.isConnected)
+            this.vroot.el.parentNode.replaceChild(this.original, this.vroot.el);
     }
 }
 

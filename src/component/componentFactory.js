@@ -1,22 +1,35 @@
-import { getRenderer } from "../renderer/index.js";
-import {
-    domFromString
-} from '../parser/index.js'
+import {Component} from "./index.js";
 
-import {
-    getRenderer
-} from '../renderer/index.js'
-import { Component } from "./index.js";
+import {getRenderer} from "../renderer/index.js";
+import {domFromString, parseDOM} from '../parser/index.js'
+import {isFunction} from "../utils/index.js";
 
-export default function componentFactory(params){
 
-    let dom = domFromString(params.template);
-    let ast = parseDOM(dom);
-    this.render = getRenderer(ast);
-    this.model = params.model;
-    this.methods = params.methods;
-    this.create = function createComponent(){
+export default class componentFactory
+{
+    constructor(params)
+    {
+        this.render = params.template;
+    
+        this.model = params.model || {};
+        this.methods = params.methods || {};
+    }
+
+    create(element)
+    {
         let model = JSON.parse(JSON.stringify(this.model)); // deep copy
-        return new Component(model, this.render, this.methods)
+        return new Component(model, this.methods, this.getRenderer(), element);
+    }
+
+    getRenderer()
+    {
+        if (!isFunction(this.render))
+        {
+            let dom = domFromString(this.render);
+            let ast = parseDOM(dom);
+            this.render = getRenderer(ast);
+        }
+
+        return this.render;
     }
 }

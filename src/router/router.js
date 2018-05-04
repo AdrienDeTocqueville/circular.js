@@ -11,13 +11,13 @@ export default class Router
 		document.addEventListener('DOMContentLoaded', doHashChange);
 	}
 
-	addRoute(url, component, node)
+	addRoute(url, factory, node)
 	{
 	    this.routes.push(
 	    {
 			url: new RegExp(url, 'gi'),
-			instance: null,
-			component,
+			component: null,
+			factory,
 			node
 		});
 	}
@@ -32,14 +32,13 @@ export default class Router
 		{
 			if ( hash.match(route.url) )
 			{
-				if (!route.instance)
-					route.instance = route.component.clone(route.node);
+				if (!route.component)
+					route.component = route.factory.create(route.node);
+				else
+					route.component.display();
 			}
-			else if (route.instance)
-			{
-				route.component.destroy(route.instance);
-				route.instance = null;
-			}
+			else if (route.component)
+				route.component.hide();
 		}
 	}
 }

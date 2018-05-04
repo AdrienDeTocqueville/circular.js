@@ -63,10 +63,10 @@ function genData(elem)
     //on
     let listeners = Object.keys(elem.on).map( event => `'${event}':${elem.on[event]}` );
 
-    return `{
-        attributes: {${ attribs.concat(bindings).join(',') }},
-        listeners: {${ listeners.join(',') }}
-    }`;
+    return `{` +
+        `attributes: {${ attribs.concat(bindings).join(',') }},` +
+        `listeners: {${ listeners.join(',') }}` +
+    `}`;
 }
 
 function genChildren(elem)
