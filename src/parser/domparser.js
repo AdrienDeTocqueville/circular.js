@@ -1,5 +1,4 @@
-import {setProp, extend} from '../utils/index.js'
-import {getAndRemoveAttribute} from './index.js'
+import {extend} from '../utils/index.js'
 
 
 export function domFromString(string)
@@ -8,24 +7,6 @@ export function domFromString(string)
     el.innerHTML = string;
     return el.firstElementChild;
 }
-
-/**
- * 
- * @param {string} tag 
- * @param {array} attribs 
- * @param {ASTElement} parent 
- */
-function createASTElement(tag, attribs, parent) {
-    return {
-        tag,
-        type: 1,
-        attribs: attribs,
-        parent,
-        isRoot: !parent,
-        children: []
-    }
-}
-
 
 
 /**
@@ -36,7 +17,6 @@ function createASTElement(tag, attribs, parent) {
 export function parseDOM(element, parent)
 {
     let ASTElem = createASTElement(element.tagName, element.attributes, parent);
-    processcFor(ASTElem);
 
     Array.prototype.forEach.call(element.childNodes, child => {
         if (child.nodeType === 1) {
@@ -55,40 +35,71 @@ export function parseDOM(element, parent)
     return ASTElem;
 }
 
+
 /**
  * 
- * @description process all "on"s events bound to element
- * @param {ASTElement} el 
+ * @param {string} tag 
+ * @param {array} attribs 
+ * @param {ASTElement} parent 
  */
-function processcOn(el){
-//TODO
-}
-
-function processcFor(el)
+function createASTElement(tag, attribs, parent)
 {
-    let cfor = getAndRemoveAttribute(el, 'c-for')
-    if (cfor) {
-        let res = parsecFor(cfor)
-        if (res) {
-            extend(res, el)
-        }
+    let element = {
+        tag,
+        type: 1,
+        attribs: {},
+        on: {},
+        bindings: [],
+        children: [],
+        parent,
+        isRoot: !parent
     }
 
-}
-/**
- * 
- * @param {string} expr 
- */
+    for (let attrib of attribs)
+    {
+        if (attrib.name.search(/^c-/) != -1)
+            processDirective(element, attrib);
 
-function parsecFor(attrib)
+        else
+            element.attribs[attrib.name] = attrib.value;
+    }
+
+    return element;
+}
+
+function processDirective(element, directive)
+{
+    let dir = directive.name.substring(2).split(/:/);
+    let directiveName = dir[0],
+        directiveArg = dir[1];
+
+    const parsers = {
+        "for": parseFor,
+        "bind": parseBind,
+        "on": parseOn
+    }
+
+    parsers[directiveName](element, directiveArg, directive.value);
+}
+
+function parseFor(el, arg, val)
 {
     let reg = /([^]*?)\s+(?:in|of)\s+([^]*)/;
-    let matches = attrib.value.match(reg)
-    return {
+    let matches = val.match(reg);
+    // TODO: error checking
+    
+    extend(el, {
         for: matches[2].trim(),
         alias: matches[1].trim()
-    }
+    });
 }
 
+function parseBind(el, arg, val)
+{
+    el.bindings.push({arg, val});
+}
 
-
+function parseOn(el, arg, val)
+{
+    el.on[arg] = `function(ccEvent) {${val};}`;
+}

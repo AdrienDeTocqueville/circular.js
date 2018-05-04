@@ -5,8 +5,7 @@
 
 export default function updateDOM(nvnode, ovnode) {
     let root;
-
-    console.log(nvnode.parent)
+    
     if (!ovnode) {
         if (nvnode.isRoot) {
             createElement(nvnode);
@@ -36,7 +35,7 @@ function haschanged(node1, node2) {
     return typeof node1 !== typeof node2 ||
         typeof node1 === 'string' && node1 !== node2 ||
         node2.type !== node1.type ||
-        JSON.stringify(node1.attributes) !== JSON.stringify(node2.attributes)
+        JSON.stringify(node1.data.attributes) !== JSON.stringify(node2.data.attributes)
 }
 
 function createElement(node) {
@@ -46,7 +45,8 @@ function createElement(node) {
         const $el = document.createElement(node.tagName);
         node.el = $el;
       
-        setAttributes($el, node.attributes);
+        setAttributes($el, node.data.attributes);
+        setEventListeners($el, node.data.listeners);
         
         node.children.map(child => createElement(child)).forEach(element => {
             $el.appendChild(element);
@@ -59,5 +59,11 @@ function createElement(node) {
 function setAttributes(element, attributes) {
     for (let attribute in attributes) {
         element.setAttribute(attribute, attributes[attribute]);
+    }
+}
+
+function setEventListeners(element, listeners) {
+    for (let event in listeners) {
+        element.addEventListener(event, listeners[event]);
     }
 }

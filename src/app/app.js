@@ -1,32 +1,37 @@
-import { updateDOM } from "../vdom/index.js";
+import Component from '../component/component.js'
+import Router from '../router/router.js';
 
-
-export default class App{
-
-
-    constructor(name){
-
-        this.name = name;
-        this.element = document.querySelector(name);
-        this.ovd = undefined;
-        this.currentVue = null;
-        this.router = undefined;
-        
+export default class App
+{
+    constructor()
+    {
+        this.components = {};
+        this.router = new Router();
     }
 
-    add(name, vue){
-        view.app = this;
+    component(tagName, data)
+    {
+        this.components[tagName] = new Component(data);
     }
 
-    update(nvd){
-        updateDOM(nvd,ovd);
-        this.ovd= nvd;
-    }
+    mount(selector)
+    {
+        this.node = document.querySelector(selector);
 
-    changeVue(vue){
-        this.currentVue.isActive = false;
-        vue.isActive = true;
-        this.currentVue = vue;
-        this.element.appendChild(this.ovd.element);
+        for (let tag in this.components)
+        {
+            let nodes = this.node.querySelectorAll(tag);
+            let component = this.components[tag];
+
+            for (let node of nodes)
+            {
+                let route = node.attributes["c-route"];
+
+                if (route)
+                    this.router.addRoute(route.value, component, node);
+                else
+                    component.instantiate(node);
+            }
+        }
     }
 }
