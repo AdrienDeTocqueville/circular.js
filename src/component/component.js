@@ -15,32 +15,40 @@ import {extend} from '../utils/index.js'
 import {updateDOM} from '../vdom/index.js'
 
 
-export default class Component {
-
-    constructor(params) {
-        this.vues= [];
-        this.tagName = params.tagName;
+export default class Component
+{
+    constructor(params)
+    {
         this.template = params.template;
-        proxy(this, params.model, ()=>{
-            this.vues.forEach(vue => vue.update())
-        });
-        extend(params.methods,this);
-        this.init();
-    }
-
-    init() {
+        this.model = params.model;
+        
         let dom = domFromString(this.template);
         let ast = parseDOM(dom);
 
-        this._e = _e.bind(this);
-        this._l = _l.bind(this);
-        this._t = _t.bind(this);
-        
         this.render = getRenderer(ast);
-        this.ovd = this.render()
     }
 
-    register(vue){
-        this.vues.push(vue);
+    instantiate(element)
+    {
+        let instance = extend({}, this.model); // NOTE: make deeper copy ?
+
+        instance._e = _e.bind(instance);
+        instance._l = _l.bind(instance);
+        instance._t = _t.bind(instance);
+
+        instance.original = element;
+        instance.render = this.render;
+
+        instance.vroot = instance.render();
+
+        updateDOM(instance.vroot);
+        element.parentNode.replaceChild(instance.vroot.el, element);
+
+        return instance;
+    }
+
+    destroy(instance)
+    {
+        instance.vroot.el.parentNode.replaceChild(instance.original, instance.vroot.el);
     }
 }

@@ -4,7 +4,7 @@ import {isObject} from '../utils/index.js'
 
 export function getRenderer(ASTRoot)
 {
-    var generator = genNode(ASTRoot);
+    let generator = genNode(ASTRoot);
     return new Function("with(this){return " + generator + ";}");
 }
 
@@ -24,11 +24,11 @@ function genNode(node)
 
 function genElement(elem)
 {
-    var tag = genTag(elem);
-    var attributes = genAttribs(elem);
-    var children = genChildren(elem);
+    let tag = genTag(elem);
+    let data = genData(elem);
+    let children = genChildren(elem);
 
-    var generator = `_e(${tag},${attributes},${children},${elem.isRoot})`;
+    let generator = `_e(${tag},${data},${children},${elem.isRoot})`;
 
     if (elem.for)
     {
@@ -42,7 +42,7 @@ function genElement(elem)
 
 function genTextNode(elem)
 {
-    var text = elem.text.replace(/[\n\r]/g, "");
+    let text = elem.text.replace(/[\n\r]/g, "");
     text = text.replace(/{{/g, "'+String(").replace(/}}/g, ")+'");
 
     return `_t('${text}')`;
@@ -51,17 +51,22 @@ function genTextNode(elem)
 
 function genTag(elem)
 {
-    return '"' + elem.tag + '"';
+    return `'${ elem.tag }'`;
 }
 
-function genAttribs(elem)
+function genData(elem)
 {
-    var attributes = {};
+    // attribs
+    let attribs = Object.keys(elem.attribs).map( attrib => `'${attrib}':'${elem.attribs[attrib]}'` );
+    let bindings = elem.bindings.map( binding => `'${binding.arg}':${binding.val}` );
 
-    for (var attrib of elem.attribs)
-        attributes[attrib.name] = attrib.value;
+    //on
+    let listeners = Object.keys(elem.on).map( event => `'${event}':${elem.on[event]}` );
 
-    return JSON.stringify(attributes);
+    return `{
+        attributes: {${ attribs.concat(bindings).join(',') }},
+        listeners: {${ listeners.join(',') }}
+    }`;
 }
 
 function genChildren(elem)
@@ -70,9 +75,9 @@ function genChildren(elem)
 }
 
 
-export function _e(tag, attributes, children, isRoot) // create element
+export function _e(tag, data, children, isRoot) // create element
 {
-    var vnode = new VNode(tag, attributes, [].concat.apply([], children));
+    let vnode = new VNode(tag, data, [].concat.apply([], children));
     vnode.isRoot = isRoot;
 
     return vnode;
@@ -85,7 +90,7 @@ export function _t(text) // create text
 
 export function _l(container, generator) // create loop
 {
-    var elems, i, l;
+    let elems, i, l;
 
     // range loop
     if (typeof container === 'number')
@@ -109,7 +114,7 @@ export function _l(container, generator) // create loop
     // object loop
     else if (isObject(container))
     {
-        var keys = Object.keys(container);
+        let keys = Object.keys(container);
         l = keys.length;
         elems = new Array(l);
 

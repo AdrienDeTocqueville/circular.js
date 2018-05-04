@@ -1,10 +1,10 @@
 
 export class VNode
 {
-    constructor(tagName, attributes, children, text)
+    constructor(tagName, data, children, text)
     {
         this.tagName = tagName;
-        this.attributes = attributes;
+        this.data = data;
         this.children = children;
         this.el = undefined;
         this.isRoot = !!this.parent;
@@ -17,7 +17,6 @@ export class VNode
         if (!this.children) return;
         for (let child of this.children){
             child.parent = this;
-            console.log("parent" ,child.parent)
         }
     }
 
