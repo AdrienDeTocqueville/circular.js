@@ -1,7 +1,4 @@
-import {
-    domFromString,
-    parseDOM
-} from '../parser/index.js'
+import {parseDOM} from '../parser/index.js'
 
 import {
     getRenderer,
@@ -23,23 +20,16 @@ import {
 
 export default class Component
 {
-    constructor(params) {
-        this.params = params
-        this.template = params.template;
-        if (params.model){
-            this.model = JSON.parse(JSON.stringify(params.model)); // deep copy
-            proxy(this, this.model, ()=>{
-                let nvroot = this.render();
-                updateDOM(nvroot, this.vroot);
-                this.vroot = nvroot;
-            })
-        }
-
-
-        let dom = domFromString(this.template);
-        let ast = parseDOM(dom);
-
-        this.render = getRenderer(ast);
+    constructor(model, renderer, methods) {
+        proxy(this, model, ()=>{
+            let nvroot = this.render();
+            updateDOM(nvroot, this.vroot);
+            this.vroot = nvroot;
+        })
+        
+        this.model = model;
+        this.render = renderer;
+        this.methods = methods;
 
         this._e = _e;
         this._l = _l;
@@ -47,8 +37,7 @@ export default class Component
 
         this.vroot = this.render();
 
-        updateDOM(this.vroot);
-        
+        updateDOM(this.vroot);    
     }
 
     clone(element) {
@@ -65,3 +54,5 @@ export default class Component
         instance.vroot.el.parentNode.replaceChild(instance.original, instance.vroot.el);
     }
 }
+
+

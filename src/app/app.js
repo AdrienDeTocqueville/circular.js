@@ -1,36 +1,37 @@
-import {Component} from '../component/index.js';
+import {Component, componentFactory} from '../component/index.js';
 import {Router} from '../router/index.js';
+
 
 export default class App
 {
     constructor()
     {
-        this.components = {};
+        this.factories = {};
         this.router = new Router();
     }
 
     component(tagName, data)
     {
-        this.components[tagName] = new Component(data);
+        this.factories[tagName] = new componentFactory(data);
     }
 
     mount(selector)
     {
         this.node = document.querySelector(selector || "body");
 
-        for (let tag in this.components)
+        for (let tag in this.factories)
         {
             let nodes = this.node.querySelectorAll(tag);
-            let component = this.components[tag];
+            let factory = this.factories[tag];
 
             for (let node of nodes)
             {
                 let route = node.attributes["c-route"];
 
                 if (route)
-                    this.router.addRoute(route.value, component, node);
+                    this.router.addRoute(route.value, factory, node);
                 else
-                    component.clone(node);
+                    factory.create();
             }
         }
     }
