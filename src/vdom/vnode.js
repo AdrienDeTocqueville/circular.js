@@ -14,6 +14,7 @@ export class VNode
     }
 
     bindToChildren(){
+        console.log(this)
         if (!this.children) return;
         for (let child of this.children){
             child.parent = this;

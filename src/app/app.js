@@ -31,7 +31,7 @@ export default class App
                 if (route)
                     this.router.addRoute(route.value, factory, node);
                 else
-                    factory.create(node);
+                    factory.create(node, this.router);
             }
         }
     }

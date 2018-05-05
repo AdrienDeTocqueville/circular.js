@@ -38,7 +38,7 @@ app.component("home", {
     template: `
         <div>
             <p>Home</p>
-            <button c-on:click="lprint(e)">click me</button>
+            <button c-on:click="goContact()">go to contact</button>
             <input c-on:keyup="lprint(e)"/>
             <p>{{text}}</p>
 
@@ -51,11 +51,14 @@ app.component("home", {
     },
     methods: {
         lprint(e){
-            this.count++;
-            console.log(this.count)
-            this.text = e.target.value; //FIXME: the text node is deleted if empty (this.text = e.target.value => bug)
-        }
+            this.text = e.target.value; 
+        },
+        goContact(){
+            this.$router.goto("contact", {chat: 10})
+        },
+        
     }
+    
 });
 
 app.component("news", {
@@ -66,8 +69,16 @@ app.component("news", {
 
 app.component("contact", {
     template: `
-        <p>Contact</p>
+        <div>
+        <h1>contact</h1>
+        <button c-if="chat" c-on:click="console.log(chat)">click</button>
+        </div>
     `,
+    methods: {
+        onCreate(){
+            console.log(this.chat)
+        }
+    }
 });
 
 app.component("about", {

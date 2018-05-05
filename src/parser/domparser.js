@@ -52,7 +52,8 @@ function createASTElement(tag, attribs, parent)
         bindings: [],
         children: [],
         parent,
-        isRoot: !parent
+        isRoot: !parent,
+        ifdir:  true
     }
 
     for (let attrib of attribs)
@@ -76,7 +77,8 @@ function processDirective(element, directive)
     const parsers = {
         "for": parseFor,
         "bind": parseBind,
-        "on": parseOn
+        "on": parseOn,
+        "if": parseIf
     }
 
     parsers[directiveName](element, directiveArg, directive.value);
@@ -102,4 +104,8 @@ function parseBind(el, arg, val)
 function parseOn(el, arg, val)
 {
     el.on[arg] = `function(ccEvent) {${val};}`;
+}
+
+function parseIf(el, arg, val){
+    el.ifdir = val || true;
 }

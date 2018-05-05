@@ -1,3 +1,5 @@
+import {extend} from '../utils/index.js'
+
 export default class Router
 {
 	constructor(defaultURL)
@@ -22,6 +24,11 @@ export default class Router
 		});
 	}
 
+	goto(route, data = null){
+		this.from = data;
+		window.location.hash = `#${route}`;
+	}
+
 	onHashChange()
 	{
 		let hash = window.location.hash;
@@ -32,10 +39,15 @@ export default class Router
 		{
 			if ( hash.match(route.url) )
 			{
-				if (!route.component)
-					route.component = route.factory.create(route.node);
-				else
+				if (!route.component){
+					route.component = route.factory.create(route.node, this);
+				} else{
 					route.component.display();
+				}
+				if (this.from){
+					extend(route.component, this.from);
+					this.from = null;
+				}
 			}
 			else if (route.component)
 				route.component.hide();

@@ -43,7 +43,7 @@ function genElement(elem)
 function genTextNode(elem)
 {
     let text = elem.text.replace(/[\n\r]/g, "");
-    text = text.replace(/{{/g, "'+String(").replace(/}}/g, ")+'");
+    text = text.replace(/{{/g, "'+String(").replace(/}}/g, ")+'") || null;
 
     return `_t('${text}')`;
 }
@@ -62,11 +62,17 @@ function genData(elem)
 
     //on
     let listeners = Object.keys(elem.on).map( event => {
-        console.log(elem.on[event])
+
         return `'${event}':e => ${elem.on[event]}.call(this, e)`
     });
 
+
+    let directives = []
+
+    directives.push(`ifdir: function(){return typeof ${elem.ifdir} !== 'undefined' ? ${elem.ifdir} : false}`)
+
     return `{` +
+        `directives: {${directives.join(',')}},` +
         `attributes: {${ attribs.concat(bindings).join(',') }},` +
         `listeners: {${ listeners.join(',') }}` +
     `}`;
@@ -80,8 +86,12 @@ function genChildren(elem)
 
 export function _e(tag, data, children, isRoot) // create element
 {
-    let vnode = new VNode(tag, data, [].concat.apply([], children));
-    vnode.isRoot = isRoot;
+    let vnode;
+    
+        vnode = new VNode(tag, data, [].concat.apply([], children));
+        vnode.isRoot = isRoot;
+        
+    console.log("vnode", vnode, "if", data.directives.ifdir())
 
     return vnode;
 }
