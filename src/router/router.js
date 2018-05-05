@@ -2,10 +2,12 @@ import {extend} from '../utils/index.js'
 
 export default class Router
 {
-	constructor(defaultURL)
+	constructor(defaultRoute)
 	{
 		this.routes = [];
-		this.defaultURL = defaultURL || "";
+		this.defaultRoute = defaultRoute || "";
+		
+		this.route = window.location.hash;
 
 		const doHashChange = () => { this.onHashChange(); };
 
@@ -26,31 +28,29 @@ export default class Router
 
 	goto(route, data = null){
 		this.from = data;
-		window.location.hash = `#${route}`;
+		window.location.hash = route;
 	}
 
 	onHashChange()
 	{
-		let hash = window.location.hash;
-		if (!hash.length)
-			window.location.hash = hash = this.defaultURL;
+		this.route = window.location.hash;
+		if (!this.route.length)
+			this.route = window.location.hash = this.defaultRoute;
 
 		for (let route of this.routes)
 		{
-			if ( hash.match(route.url) )
+			if ( this.route.match(route.url) )
 			{
 				if (!route.component){
 					route.component = route.factory.create(route.node, this);
 				} else{
 					route.component.display();
 				}
-				if (this.from){
-					extend(route.component, this.from);
-					this.from = null;
-				}
 			}
 			else if (route.component)
 				route.component.hide();
 		}
+
+		this.from = null;
 	}
 }

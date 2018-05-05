@@ -18,11 +18,8 @@ export default class componentFactory
     create(element, router)
     {
         let model = JSON.parse(JSON.stringify(this.model)); // deep copy
-        let comp = new Component(model, this.methods, this.getRenderer(), element);
-        comp.$router = router;
-        if (comp.onCreate){
-            comp.onCreate();
-        }
+        let comp = new Component(model, this.methods, this.getRenderer(), element, router);
+        
         return comp;
     }
 

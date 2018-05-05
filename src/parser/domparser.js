@@ -1,6 +1,3 @@
-import {extend} from '../utils/index.js'
-
-
 export function domFromString(string)
 {
     let el = document.createElement('div');
@@ -90,10 +87,8 @@ function parseFor(el, arg, val)
     let matches = val.match(reg);
     // TODO: error checking
     
-    extend(el, {
-        for: matches[2].trim(),
-        alias: matches[1].trim()
-    });
+    el.for = matches[2].trim();
+    el.alias = matches[1].trim();
 }
 
 function parseBind(el, arg, val)
@@ -103,9 +98,10 @@ function parseBind(el, arg, val)
 
 function parseOn(el, arg, val)
 {
-    el.on[arg] = `function(ccEvent) {${val};}`;
+    el.on[arg] = `function(e) {${val};}`;
 }
 
-function parseIf(el, arg, val){
+function parseIf(el, arg, val)
+{
     el.if = val;
 }

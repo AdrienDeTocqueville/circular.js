@@ -6,13 +6,12 @@ app.component("navbar", {
     template: `
         <ul>
             <li c-for="link in links">
-                <a c-on:click="active=link.label" c-bind:class="(active==link.label)?'active':'none'" c-bind:href="link.url">{{link.label}}</a>
+                <a c-bind:class="($router.route==link.url)?'active':'none'" c-bind:href="link.url">{{link.label}}</a>
             </li>
         </ul>
     `,
 
     model: {
-        active: 'Home',
         links: [
             {
                 label: 'Home',
@@ -38,25 +37,15 @@ app.component("home", {
     template: `
         <div>
             <p>Home</p>
-            <button c-on:click="goContact()">go to contact</button>
-            <input c-on:keyup="lprint(e)"/>
+            <button c-on:click="$router.goto('#contact', {chat: 10})">Go to contact</button>
+            <input c-on:keyup="text = e.target.value"/>
             <p>{{text}}</p>
 
+            <p c-if="text == 'Adrien'">On m'a appelé ?</p>
         </div>
     `,
-    model:{
-        count: 0,
+    model: {
         text: ""
-        
-    },
-    methods: {
-        lprint(e){
-            this.text = e.target.value; 
-        },
-        goContact(){
-            this.$router.goto("contact", {chat: 10})
-        },
-        
     }
     
 });
@@ -70,13 +59,13 @@ app.component("news", {
 app.component("contact", {
     template: `
         <div>
-        <h1>contact</h1>
-        <button c-if="chat" c-on:click="">click</button>
+            <h1>contact</h1>
+            <button >click here</button>
         </div>
     `,
     methods: {
-        onCreate(){
-            console.log(this.chat)
+        onDisplay(params) {
+            console.log(params? params.chat: "no chat available")
         }
     },
     model: {

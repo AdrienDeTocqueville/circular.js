@@ -1,11 +1,9 @@
 /**
- * for rendering, root element should be added to component's element
- * 
+ * @description for rendering, root element should be added to component's element
  */
 
-export default function updateDOM(nvnode, ovnode) {
-    let root;
-    if(nvnode.isEmpty) return;
+export default function updateDOM(nvnode, ovnode)
+{
     if (!ovnode) {
         if (nvnode.isRoot) {
             createElement(nvnode);
@@ -32,24 +30,25 @@ export default function updateDOM(nvnode, ovnode) {
  * @param {*} node2 
  */
 function haschanged(node1, node2) {
-    let test = typeof node1 !== typeof node2 ||
-   ( (node1.text || node1.text ==='') && node1 !== node2 )||
-    node2.type !== node1.type; 
+    let test = ( (node1.text || node1.text ==='') && (node1 !== node2) ) || (node1.isEmpty !== node2.isEmpty); 
 
     if(node1.data && node2.data){
         return JSON.stringify(node1.data.attributes) !== JSON.stringify(node2.data.attributes) || test;
     }
 
     return test;
-        
 }
 
 function createElement(node) {
-    console.log(node)
     if (node.text || node.text === '') {
         node.el =  document.createTextNode(node.text);
         return node.el;
-    } else {
+    }
+    else if (node.isEmpty) {
+        node.el = document.createComment("v-if not renderer");
+        return node.el;
+    }
+    else {
         const $el = document.createElement(node.tagName);
         node.el = $el;
       
@@ -59,10 +58,10 @@ function createElement(node) {
         node.children.map(child => createElement(child)).forEach(element => {
             $el.appendChild(element);
         });
+        
         return $el;
     }
 }
-
 
 function setAttributes(element, attributes) {
     for (let attribute in attributes) {
