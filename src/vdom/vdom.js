@@ -15,7 +15,6 @@ export default function updateDOM(nvnode, ovnode) {
     } else if (!nvnode) {
         ovnode.el.remove();
     } else if (haschanged(nvnode, ovnode)) {
-
         nvnode.parent.el.replaceChild(createElement(nvnode), ovnode.el)
     } else if (nvnode.children) {
         nvnode.el = ovnode.el;
@@ -34,7 +33,7 @@ export default function updateDOM(nvnode, ovnode) {
  */
 function haschanged(node1, node2) {
     let test = typeof node1 !== typeof node2 ||
-   ( node1.text && node1 !== node2 )||
+   ( (node1.text || node1.text ==='') && node1 !== node2 )||
     node2.type !== node1.type; 
 
     if(node1.data && node2.data){
@@ -46,7 +45,8 @@ function haschanged(node1, node2) {
 }
 
 function createElement(node) {
-    if (node.text) {
+    
+    if (node.text || node.text === '') {
         node.el =  document.createTextNode(node.text);
         return node.el;
     } else {

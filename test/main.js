@@ -46,14 +46,14 @@ app.component("home", {
     `,
     model:{
         count: 0,
-        text: " "
+        text: ""
         
     },
     methods: {
         lprint(e){
             this.count++;
             console.log(this.count)
-            this.text = e.target.value || ' '; //FIXME: the text node is deleted if empty (this.text = e.target.value => bug)
+            this.text = e.target.value; //FIXME: the text node is deleted if empty (this.text = e.target.value => bug)
         }
     }
 });

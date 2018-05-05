@@ -27,3 +27,7 @@ export function createTextNode(text)
 {
     return new VNode(undefined, undefined, undefined, text);
 }
+
+export function createEmptyTextNode(){
+    return createTextNode('')
+}
