@@ -5,7 +5,7 @@
 
 export default function updateDOM(nvnode, ovnode) {
     let root;
-    
+    if(nvnode.isEmpty) return;
     if (!ovnode) {
         if (nvnode.isRoot) {
             createElement(nvnode);
@@ -45,7 +45,7 @@ function haschanged(node1, node2) {
 }
 
 function createElement(node) {
-    
+    console.log(node)
     if (node.text || node.text === '') {
         node.el =  document.createTextNode(node.text);
         return node.el;

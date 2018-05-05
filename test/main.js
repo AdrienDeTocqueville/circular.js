@@ -71,13 +71,16 @@ app.component("contact", {
     template: `
         <div>
         <h1>contact</h1>
-        <button c-if="chat" c-on:click="console.log(chat)">click</button>
+        <button c-if="chat" c-on:click="">click</button>
         </div>
     `,
     methods: {
         onCreate(){
             console.log(this.chat)
         }
+    },
+    model: {
+        chat: false
     }
 });
 

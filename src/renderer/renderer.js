@@ -5,6 +5,7 @@ import {isObject} from '../utils/index.js'
 export function getRenderer(ASTRoot)
 {
     let generator = genNode(ASTRoot);
+    console.log(generator)
     return new Function("with(this){return " + generator + ";}");
 }
 
@@ -18,8 +19,10 @@ function genNode(node)
     else if (node.type == 3)
         return genTextNode(node);
 
-    else
+    else{
         throw new Error("Element type not supported (yet?)");
+
+    }
 }
 
 function genElement(elem)
@@ -28,7 +31,7 @@ function genElement(elem)
     let data = genData(elem);
     let children = genChildren(elem);
 
-    let generator = `_e(${tag},${data},${children},${elem.isRoot})`;
+    let generator = `_c(${tag},${data},${children},${elem.isRoot})`;
 
     if (elem.for)
     {
@@ -67,12 +70,8 @@ function genData(elem)
     });
 
 
-    let directives = []
 
-    directives.push(`ifdir: function(){return typeof ${elem.ifdir} !== 'undefined' ? ${elem.ifdir} : false}`)
-
-    return `{` +
-        `directives: {${directives.join(',')}},` +
+    return `{`+
         `attributes: {${ attribs.concat(bindings).join(',') }},` +
         `listeners: {${ listeners.join(',') }}` +
     `}`;
@@ -80,18 +79,24 @@ function genData(elem)
 
 function genChildren(elem)
 {
-    return `[${ elem.children.map( child => genNode(child) ).join(',') }]`;
+    let children = [];
+    for (let child of elem.children){
+        if (child.if){
+            children.push(`(${child.if}) ? ${genNode(child)} : _e()`);
+        } else {
+            children.push(genNode(child));
+        }
+    }
+    return `[${ children.join(',') }]`;
 }
 
 
-export function _e(tag, data, children, isRoot) // create element
+export function _c(tag, data, children, isRoot) // create element
 {
     let vnode;
     
         vnode = new VNode(tag, data, [].concat.apply([], children));
         vnode.isRoot = isRoot;
-        
-    console.log("vnode", vnode, "if", data.directives.ifdir())
 
     return vnode;
 }
@@ -99,6 +104,12 @@ export function _e(tag, data, children, isRoot) // create element
 export function _t(text) // create text
 {
     return createTextNode(text);
+}
+
+export function _e(){
+    let node = new VNode();
+    node.isEmpty = true;
+    return node
 }
 
 export function _l(container, generator) // create loop

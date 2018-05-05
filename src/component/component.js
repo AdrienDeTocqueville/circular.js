@@ -1,6 +1,6 @@
 import {proxy} from './index.js'
 import {updateDOM} from '../vdom/index.js'
-import {_e, _l, _t} from '../renderer/index.js'
+import {_c,_e, _l, _t} from '../renderer/index.js'
 import { extend } from '../utils/index.js';
 
 
@@ -18,9 +18,10 @@ export default class Component
         this.render = renderer;
         extend(this, methods);
 
-        this._e = _e;
+        this._c = _c;
         this._l = _l;
         this._t = _t;
+        this._e = _e;
 
         this.original = element;
         this.vroot = this.render();

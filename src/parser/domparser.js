@@ -53,7 +53,7 @@ function createASTElement(tag, attribs, parent)
         children: [],
         parent,
         isRoot: !parent,
-        ifdir:  true
+       
     }
 
     for (let attrib of attribs)
@@ -107,5 +107,5 @@ function parseOn(el, arg, val)
 }
 
 function parseIf(el, arg, val){
-    el.ifdir = val || true;
+    el.if = val;
 }

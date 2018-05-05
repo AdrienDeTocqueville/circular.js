@@ -7,14 +7,13 @@ export class VNode
         this.data = data;
         this.children = children;
         this.el = undefined;
-        this.isRoot = !!this.parent;
+        this.isRoot = !!this.parent; //FIXME: c-if children nodes have no parents and are not root
         this.text = text;
         this.bindToChildren();
        
     }
 
     bindToChildren(){
-        console.log(this)
         if (!this.children) return;
         for (let child of this.children){
             child.parent = this;
