@@ -1,7 +1,7 @@
 import {proxy} from './index.js'
-
 import {updateDOM} from '../vdom/index.js'
 import {_e, _l, _t} from '../renderer/index.js'
+import { extend } from '../utils/index.js';
 
 
 export default class Component
@@ -16,7 +16,7 @@ export default class Component
         
         this.model = model;
         this.render = renderer;
-        this.methods = methods;
+        extend(this, methods);
 
         this._e = _e;
         this._l = _l;

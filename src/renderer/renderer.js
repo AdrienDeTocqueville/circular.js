@@ -61,7 +61,10 @@ function genData(elem)
     let bindings = elem.bindings.map( binding => `'${binding.arg}':${binding.val}` );
 
     //on
-    let listeners = Object.keys(elem.on).map( event => `'${event}':${elem.on[event]}` );
+    let listeners = Object.keys(elem.on).map( event => {
+        console.log(elem.on[event])
+        return `'${event}':e => ${elem.on[event]}.call(this, e)`
+    });
 
     return `{` +
         `attributes: {${ attribs.concat(bindings).join(',') }},` +

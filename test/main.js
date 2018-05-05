@@ -38,12 +38,23 @@ app.component("home", {
     template: `
         <div>
             <p>Home</p>
-            <button c-on:click="count++">click me</button>
-            <p>{{count}}</p>
+            <button c-on:click="lprint(e)">click me</button>
+            <input c-on:keyup="lprint(e)"/>
+            <p>{{text}}</p>
+
         </div>
     `,
     model:{
-        count: 0
+        count: 0,
+        text: "hello"
+        
+    },
+    methods: {
+        lprint(e){
+            this.count++;
+            console.log(this.count)
+            this.text = e.target.value || '';
+        }
     }
 });
 
