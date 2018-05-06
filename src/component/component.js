@@ -6,7 +6,7 @@ import { extend } from '../utils/index.js';
 
 export default class Component
 {
-    constructor(model, methods, renderer, element, router)
+    constructor(model, methods, renderer, element)
     {
         proxy(this, model, () => {
             let nvroot = this.$render();
@@ -16,7 +16,6 @@ export default class Component
 
         extend(this, methods);
 
-        this.$router = router
         this.$render = renderer;
         this._c = _c;
         this._e = _e;

@@ -15,10 +15,10 @@ export default class componentFactory
         this.methods = params.methods || {};
     }
 
-    create(element, router)
+    create(element)
     {
         let model = JSON.parse(JSON.stringify(this.model)); // deep copy
-        let comp = new Component(model, this.methods, this.getRenderer(), element, router);
+        let comp = new Component(model, this.methods, this.getRenderer(), element);
         
         return comp;
     }

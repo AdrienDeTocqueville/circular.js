@@ -1,4 +1,4 @@
-import {componentFactory} from '../component/index.js';
+import {Component, componentFactory} from '../component/index.js';
 import {Router} from '../router/index.js';
 
 
@@ -8,6 +8,8 @@ export default class App
     {
         this.factories = {};
         this.router = new Router();
+
+        Component.prototype.$router = this.router;
     }
 
     component(tagName, data)
@@ -31,7 +33,7 @@ export default class App
                 if (route)
                     this.router.addRoute(route.value, factory, node);
                 else
-                    factory.create(node, this.router);
+                    factory.create(node);
             }
         }
     }

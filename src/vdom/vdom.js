@@ -14,12 +14,16 @@ export default function updateDOM(nvnode, ovnode)
         ovnode.el.remove();
     } else if (haschanged(nvnode, ovnode)) {
         nvnode.parent.el.replaceChild(createElement(nvnode), ovnode.el)
-    } else if (nvnode.children) {
+    } else {
         nvnode.el = ovnode.el;
-        const nl = nvnode.children.length
-        const ol = ovnode.children.length
-        for (let i = 0; i < nl || i < ol; i++) {
-            updateDOM(nvnode.children[i], ovnode.children[i])
+
+        if (nvnode.children)
+        {
+            const nl = nvnode.children.length
+            const ol = ovnode.children.length
+            for (let i = 0; i < nl || i < ol; i++) {
+                updateDOM(nvnode.children[i], ovnode.children[i])
+            }
         }
     }
 }
@@ -30,11 +34,10 @@ export default function updateDOM(nvnode, ovnode)
  * @param {*} node2 
  */
 function haschanged(node1, node2) {
-    let test = ( (node1.text || node1.text ==='') && (node1 !== node2) ) || (node1.isEmpty !== node2.isEmpty); 
-
-    if(node1.data && node2.data){
-        return JSON.stringify(node1.data.attributes) !== JSON.stringify(node2.data.attributes) || test;
-    }
+    let test = (node1.isEmpty !== node2.isEmpty)
+            || (node1.tagName !== node2.tagName)
+            || (node1.text !== node2.text)
+            || (JSON.stringify(node1.data) !== JSON.stringify(node2.data));
 
     return test;
 }
