@@ -1,20 +1,18 @@
-import {proxy} from './index.js'
+import {makeReactive} from './index.js'
 import {updateDOM} from '../vdom/index.js'
 import {_c,_e, _t, _l} from '../renderer/index.js'
-import { extend } from '../utils/index.js';
+import {extend} from '../utils/index.js';
 
 
 export default class Component
 {
     constructor(model, methods, renderer, element)
     {
-        proxy(this, model, () => {
-            let nvroot = this.$render();
-            updateDOM(nvroot, this.$vroot);
-            this.$vroot = nvroot;
-        });
+        this.proxify(model);
+        extend(this,  methods);
 
-        extend(this, methods);
+        this.$updater = null;
+        this.$delay = 200;
 
         this.$render = renderer;
         this._c = _c;
@@ -31,7 +29,7 @@ export default class Component
         if (this.onCreate)
             this.onCreate();
         if (this.onDisplay)
-            this.onDisplay(this.$router.from);
+            this.onDisplay();
     }
 
     display()
@@ -41,7 +39,7 @@ export default class Component
             this.__display();
 
             if (this.onDisplay)
-                this.onDisplay(this.$router.from);
+                this.onDisplay();
         }
     }
 
@@ -57,9 +55,33 @@ export default class Component
             this.$vroot.el.parentNode.replaceChild(this.$original, this.$vroot.el);
             
             if (this.onHide)
-                this.onHide(this.$router.from);
+                this.onHide();
         }
     }
+
+    proxify(model)
+    {
+        extend(this, model);
+
+        for (var prop in model)
+            makeReactive(this, prop, this);
+    }
+
+
+    update()
+    {
+        if (this.$updater != null)
+            clearTimeout(this.$updater);
+
+		this.$updater = setTimeout(this.__update.bind(this), this.$delay);
+    }
+
+    __update()
+    {
+        this.$updater = null;
+
+        let nvroot = this.$render();
+        updateDOM(nvroot, this.$vroot);
+        this.$vroot = nvroot;
+    }
 }
-
-

@@ -1,7 +1,7 @@
 import Component from "./component.js";
-import componentFactory from "./componentFactory.js"
+import ComponentFactory from "./componentFactory.js"
 
-export {Component, componentFactory};
+export {Component, ComponentFactory};
 
 export * from './utils.js'
 

@@ -5,7 +5,7 @@ import {domFromString, parseDOM} from '../parser/index.js'
 import {isFunction} from "../utils/index.js";
 
 
-export default class componentFactory
+export default class ComponentFactory
 {
     constructor(params)
     {
@@ -15,7 +15,7 @@ export default class componentFactory
         this.methods = params.methods || {};
     }
 
-    create(element)
+    create(element, view)
     {
         let model = JSON.parse(JSON.stringify(this.model)); // deep copy
         let comp = new Component(model, this.methods, this.getRenderer(), element);
