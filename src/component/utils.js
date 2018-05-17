@@ -1,31 +1,50 @@
 import {isObject} from '../utils/index.js';
 
 
-export function makeReactive(obj, prop, comp)
+export function makeReactive(obj, key, callback)
 {
-    if (isObject(obj[prop]))
+    if (isObject(obj[key]))
     {
-        for (var childProp in obj[prop])
-            makeReactive(obj[prop], childProp, comp);
+        for (var childKey in obj[key])
+            makeReactive(obj[key], childKey, callback);
     }
     
-    defProp(obj, prop, obj[prop], comp);
+    defProp(obj, key, callback);
 }
 
-function defProp(o, p, val, comp)
+function defProp(o, k, callback)
 {
-    Object.defineProperty(o, p, {
+    const property = Object.getOwnPropertyDescriptor(o, k)
+    if (property.configurable === false)
+      return;
+  
+    const getter = property.get;
+    const setter = property.set;
+    if (!getter || !setter)
+        var val = o[k];
+
+
+    Object.defineProperty(o, k, {
         enumerable: true,
         configurable: true,
 
-        get: function getter() {
-            return val;
+        get: function rectiveGet() {
+            return getter ? getter.call(o): val;
         },
         
-        set: function getter(newVal) {
-            val = newVal;
+        set: function reactiveSet(newVal) {
+            if (setter)
+                setter.call(o, newVal);
+            else
+                val = newVal;
 
-            comp.update();
+            if (isObject(newVal))
+            {
+                for (var childKey in newVal)
+                    makeReactive(newVal, childKey, callback);
+            }
+
+            callback();
         }
     });
 }

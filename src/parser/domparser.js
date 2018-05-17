@@ -45,12 +45,13 @@ function createASTElement(tag, attribs, parent)
         tag,
         type: 1,
         attribs: {},
-        on: {},
-        bindings: [],
         children: [],
         parent,
         isRoot: !parent,
-       
+
+        watching: [],
+        bindings: [],
+        on: {},
     }
 
     for (let attrib of attribs)
@@ -72,13 +73,30 @@ function processDirective(element, directive)
         directiveArg = dir[1];
 
     const parsers = {
-        "for": parseFor,
+        "watch": parseWatch,
         "bind": parseBind,
+        "for": parseFor,
         "on": parseOn,
         "if": parseIf
     }
 
-    parsers[directiveName](element, directiveArg, directive.value);
+    let parser = parsers[directiveName];
+
+    if (parser)
+        parser(element, directiveArg, directive.value);
+
+    else
+        console.error("circular: Unknown directive", directiveName);
+}
+
+function parseWatch(el, arg, val)
+{
+    el.watching.push(val);
+}
+
+function parseBind(el, arg, val)
+{
+    el.bindings.push({arg, val});
 }
 
 function parseFor(el, arg, val)
@@ -91,14 +109,9 @@ function parseFor(el, arg, val)
     el.alias = matches[1].trim();
 }
 
-function parseBind(el, arg, val)
-{
-    el.bindings.push({arg, val});
-}
-
 function parseOn(el, arg, val)
 {
-    el.on[arg] = `function(e) {${val};}`;
+    el.on[arg] = `function($e) {${val};}`;
 }
 
 function parseIf(el, arg, val)

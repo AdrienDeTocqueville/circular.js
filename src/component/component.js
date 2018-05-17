@@ -6,13 +6,10 @@ import {extend} from '../utils/index.js';
 
 export default class Component
 {
-    constructor(model, methods, renderer, element)
+    constructor(model, controller, renderer, element)
     {
         this.proxify(model);
-        extend(this,  methods);
-
-        this.$updater = null;
-        this.$delay = 200;
+        extend(this,  controller);
 
         this.$render = renderer;
         this._c = _c;
@@ -21,42 +18,24 @@ export default class Component
         this._l = _l;
 
         this.$original = element;
-        this.$vroot = this.$render();
 
-        updateDOM(this.$vroot);
-        this.__display();
+        this.$updater = null;
+        this.$delay = 200;
 
-        if (this.onCreate)
-            this.onCreate();
-        if (this.onDisplay)
-            this.onDisplay();
+        this.__update();
+        this.show();
     }
 
-    display()
+    show()
     {
-        if (this.$original.isConnected)
-        {
-            this.__display();
-
-            if (this.onDisplay)
-                this.onDisplay();
-        }
-    }
-
-    __display()
-    {
-        this.$original.parentNode.replaceChild(this.$vroot.el, this.$original);
+        if (!this.$vroot.el.isConnected)
+            this.$original.parentNode.replaceChild(this.$vroot.el, this.$original);
     }
 
     hide()
     {
         if (this.$vroot.el.isConnected)
-        {
             this.$vroot.el.parentNode.replaceChild(this.$original, this.$vroot.el);
-            
-            if (this.onHide)
-                this.onHide();
-        }
     }
 
     proxify(model)
@@ -64,16 +43,14 @@ export default class Component
         extend(this, model);
 
         for (var prop in model)
-            makeReactive(this, prop, this);
+            makeReactive(this, prop, this.update.bind(this));
     }
 
 
     update()
     {
-        if (this.$updater != null)
-            clearTimeout(this.$updater);
-
-		this.$updater = setTimeout(this.__update.bind(this), this.$delay);
+        if (!this.$updater)
+		    this.$updater = setTimeout(this.__update.bind(this), this.$delay);
     }
 
     __update()

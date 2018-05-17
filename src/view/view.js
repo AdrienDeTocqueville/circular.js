@@ -6,7 +6,7 @@ export default class View
 {
     constructor(params)
     {
-        this.params = params;
+        this.params = params || {};
         
         this.stylesheets = [];
         this.factories = {};
@@ -55,14 +55,21 @@ export default class View
 
     __init()
     {
-        for (var name of this.params.stylesheets)
-            this.stylesheets.push(this.createStyleheetElement(name));
-
-        for (var tag in this.params.components)
-            this.factories[tag] = new ComponentFactory(this.params.components[tag]);
-
-            
         this.node = domFromString(this.params.body);
+
+
+        if (this.params.stylesheets)
+        {
+            for (var name of this.params.stylesheets)
+                this.stylesheets.push(this.createStyleheetElement(name));
+        }
+
+        if (this.params.components)
+        {
+            for (var tag in this.params.components)
+                this.factories[tag] = new ComponentFactory(this.params.components[tag]);
+        }
+
 
         for (let tag in this.factories)
         {
