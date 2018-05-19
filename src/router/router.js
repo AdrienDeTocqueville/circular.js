@@ -1,19 +1,21 @@
-import View from '../view/index.js'
-import {Component} from '../component/index.js'
-import {extend} from '../utils/index.js'
+import {Component, ComponentFactory} from '../component/index.js'
 
 export default class Router
 {
 	constructor(params)
 	{
+		if (!params.app)
+			console.error("router: app must be sent as parameter");
+
 		this.app = params.app;
-		this.default = params.default || "";
-		this.notFound = new View(params.notFound);
+        this.selector = params.selector || "router";
 		
-		this.app.defaultView = null;
+		this.defaultRoute = params.defaultRoute || "";
+		this.notFoundRoute = params.notFoundRoute || "";
 
 		this.routes = [];
 		this.route = window.location.hash;
+		this.currentComponent = undefined;
 
 
 		Component.prototype.$router = this;
@@ -24,32 +26,48 @@ export default class Router
 		window.addEventListener('DOMContentLoaded', this.onHashChange);
 	}
 
-	addRoute(route, view)
+	addRoute(route, component)
 	{
 	    this.routes.push(
 	    {
 			url: new RegExp(route, 'gi'),
-			view: new View(view)
+			factory: new ComponentFactory(component),
+			component: null
 		});
 	}
 
 	onHashChange()
 	{
-		this.route = window.location.hash || this.default;
+		if (!this.node)
+			this.node = document.querySelector(this.selector);
 
-		const route = this.routes.filter(route => this.route.match(route.url))[0];
+
+		this.route = window.location.hash || this.defaultRoute;
+
+		const route = this.routes.filter(route => this.route.match(route.url))[0] ||
+					  this.routes.filter(route => this.notFoundRoute.match(route.url))[0];
 
 		if (route)
-			this.app.show(route.view);
-		else
-			this.app.show(this.notFound);
+			this.show(route);
 	}
 
-
-	goto(route, data = null)
+	show(route)
 	{
-		console.log("TODO: goto")
-		this.from = data;
+		if (!route.component)
+			route.component = route.factory.create();
+
+		if (this.currentComponent)
+		{
+			this.currentComponent.hide(this.node);
+			this.currentComponent = null;
+		}
+
+		if (route.component.show(this.node))
+			this.currentComponent = route.component;
+	}
+
+	goto(route)
+	{
 		window.location.hash = route;
 	}
 

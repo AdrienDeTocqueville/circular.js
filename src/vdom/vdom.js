@@ -2,19 +2,23 @@
  * @description for rendering, root element should be added to component's element
  */
 
-export default function updateDOM(nvnode, ovnode)
+export default function updateDOM(nvnode, ovnode, parent)
 {
     if (!ovnode) {
-        if (nvnode.isRoot) {
-            createElement(nvnode);
+        if (parent) {
+            parent.el.appendChild(nvnode.el);
         } else {
-            nvnode.parent.el.appendChild(nvnode.el);
+            nvnode.createElement();
         }
-    } else if (!nvnode) {
+    }
+    else if (!nvnode) {
         ovnode.el.remove();
-    } else if (haschanged(nvnode, ovnode)) {
-        nvnode.parent.el.replaceChild(createElement(nvnode), ovnode.el)
-    } else {
+    }
+    else if (haschanged(nvnode, ovnode)) {
+        nvnode.createElement();
+        parent.el.replaceChild(nvnode.el, ovnode.el)
+    }
+    else {
         nvnode.el = ovnode.el;
 
         if (nvnode.children)
@@ -22,7 +26,7 @@ export default function updateDOM(nvnode, ovnode)
             const nl = nvnode.children.length
             const ol = ovnode.children.length
             for (let i = 0; i < nl || i < ol; i++) {
-                updateDOM(nvnode.children[i], ovnode.children[i])
+                updateDOM(nvnode.children[i], ovnode.children[i], nvnode)
             }
         }
     }
@@ -34,46 +38,11 @@ export default function updateDOM(nvnode, ovnode)
  * @param {*} node2 
  */
 function haschanged(node1, node2) {
-    let test = (node1.isEmpty !== node2.isEmpty)
-            || (node1.tagName !== node2.tagName)
+    let test = (node1.tagName !== node2.tagName)
+            || (node1.factory !== node2.factory)
+            || (node1.isEmpty !== node2.isEmpty)
             || (node1.text !== node2.text)
             || (JSON.stringify(node1.data) !== JSON.stringify(node2.data));
 
     return test;
-}
-
-function createElement(node) {
-    if (node.text || node.text === '') {
-        node.el =  document.createTextNode(node.text);
-        return node.el;
-    }
-    else if (node.isEmpty) {
-        node.el = document.createComment("v-if not renderer");
-        return node.el;
-    }
-    else {
-        const $el = document.createElement(node.tagName);
-        node.el = $el;
-      
-        setAttributes($el, node.data.attributes);
-        setEventListeners($el, node.data.listeners);
-        
-        node.children.map(child => createElement(child)).forEach(element => {
-            $el.appendChild(element);
-        });
-        
-        return $el;
-    }
-}
-
-function setAttributes(element, attributes) {
-    for (let attribute in attributes) {
-        element.setAttribute(attribute, attributes[attribute]);
-    }
-}
-
-function setEventListeners(element, listeners) {
-    for (let event in listeners) {
-        element.addEventListener(event, listeners[event]);
-    }
 }

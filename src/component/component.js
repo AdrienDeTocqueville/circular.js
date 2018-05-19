@@ -6,36 +6,27 @@ import {extend} from '../utils/index.js';
 
 export default class Component
 {
-    constructor(model, controller, renderer, element)
+    // Init
+    constructor(stylesheets, model, renderer, controller, factories)
     {
+        this.stylesheets = stylesheets;
+
         this.proxify(model);
-        extend(this,  controller);
 
         this.$render = renderer;
         this._c = _c;
         this._e = _e;
         this._t = _t;
         this._l = _l;
+        
+        extend(this,  controller);
 
-        this.$original = element;
+        this.$factories = factories;
 
         this.$updater = null;
         this.$delay = 200;
 
         this.__update();
-        this.show();
-    }
-
-    show()
-    {
-        if (!this.$vroot.el.isConnected)
-            this.$original.parentNode.replaceChild(this.$vroot.el, this.$original);
-    }
-
-    hide()
-    {
-        if (this.$vroot.el.isConnected)
-            this.$vroot.el.parentNode.replaceChild(this.$original, this.$vroot.el);
     }
 
     proxify(model)
@@ -44,6 +35,45 @@ export default class Component
 
         for (var prop in model)
             makeReactive(this, prop, this.update.bind(this));
+    }
+
+    // Display
+    show(node)
+    {
+        if (!this.$vroot.el.isConnected)
+        {
+            this.applyStyle();
+            node.parentNode.replaceChild(this.$vroot.el, node);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    hide(node)
+    {
+        if (this.$vroot.el.isConnected)
+        {
+            this.$vroot.el.parentNode.replaceChild(node, this.$vroot.el);
+            this.removeStyle();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    applyStyle()
+    {
+        for (let stylesheet of this.stylesheets)
+            document.head.appendChild(stylesheet);
+    }
+
+    removeStyle()
+    {
+        for (let stylesheet of this.stylesheets)
+            document.head.removeChild(stylesheet);
     }
 
 

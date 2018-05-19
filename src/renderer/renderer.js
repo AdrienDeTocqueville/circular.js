@@ -1,4 +1,4 @@
-import {VNode, createTextNode, createEmptyNode} from '../vdom/index.js'
+import {VNode, createTextNode, createEmptyNode, createComponent} from '../vdom/index.js'
 import {isObject} from '../utils/index.js'
 
 
@@ -28,7 +28,7 @@ function genElement(elem)
     let data = genData(elem);
     let children = genChildren(elem);
 
-    let generator = `_c(${tag},${data},${children},${elem.isRoot})`;
+    let generator = `_c(${tag},${data},${children})`;
 
     if (elem.if)
     {
@@ -82,12 +82,15 @@ function genChildren(elem)
 }
 
 
-export function _c(tag, data, children, isRoot)
+export function _c(tag, data, children)
 {
-    let vnode = new VNode(tag, data, [].concat.apply([], children));
-    vnode.isRoot = isRoot;
+    let factory = this.$factories[tag];
+    
+    if (factory)
+        return createComponent(factory);
 
-    return vnode;
+    else
+        return new VNode(tag, data, [].concat.apply([], children));
 }
 
 export function _e()
