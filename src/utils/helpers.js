@@ -55,36 +55,37 @@ export function makeReactive(obj, key, callback)
 
 /**
  * 
- * @param {object} o
- * @param {key} k
+ * @param {object} obj
+ * @param {key} key
  * @param {function} callback
  * @param {boolean} recursive
  * 
  * Defines get and set on o[k]
  */
-export function defProp(o, k, callback, recursive = true)
+export function defProp(obj, key, callback, recursive = true)
 {
-    const property = Object.getOwnPropertyDescriptor(o, k)
+    let params = unpack(obj, key);
+
+    const property = Object.getOwnPropertyDescriptor(params.obj, params.key);
     if (property.configurable === false)
       return;
   
     const getter = property.get;
     const setter = property.set;
     if (!getter || !setter)
-        var val = o[k];
+        var val = obj[key];
 
-
-    Object.defineProperty(o, k, {
+    Object.defineProperty(params.obj, params.key, {
         enumerable: true,
         configurable: true,
 
-        get: function rectiveGet() {
-            return getter ? getter.call(o): val;
+        get: function reactiveGet() {
+            return getter ? getter.call(obj): val;
         },
         
         set: function reactiveSet(newVal) {
             if (setter)
-                setter.call(o, newVal);
+                setter.call(obj, newVal);
             else
                 val = newVal;
 
@@ -97,4 +98,22 @@ export function defProp(o, k, callback, recursive = true)
             callback();
         }
     });
+}
+
+/**
+ * 
+ * @param {object} obj
+ * @param {key} key
+ * 
+ * Recursively parse obj if key references child property
+ */
+export function unpack(obj, key)
+{
+    const keys = key.split('.');
+
+    if(keys.length > 1)
+        return unpack(obj[keys[0]], keys.slice(1).join('.'));
+
+    else
+        return {obj, key};
 }

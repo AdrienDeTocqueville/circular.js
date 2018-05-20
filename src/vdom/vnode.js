@@ -1,12 +1,13 @@
-import { defProp } from "../utils/index.js";
+import { defProp, unpack } from "../utils/index.js";
 
 export class VNode
 {
-    constructor(tagName, model, listeners, attributes, children, component)
+    constructor(tagName, model, watched, listeners, attributes, children, component)
     {
         this.tagName = tagName;
 
         this.model = model;
+        this.watched = watched;
         this.listeners = listeners;
         this.attributes = attributes;
 
@@ -30,9 +31,10 @@ export class VNode
         else {
             this.el = document.createElement(this.tagName);
           
-            this.setAttributes();
-            this.setEventListeners();
             this.setModel();
+            this.setWatchers();
+            this.setListeners();
+            this.setAttributes();
             
             this.children.forEach(child => {
                 child.createElement();
@@ -41,32 +43,41 @@ export class VNode
         }
     }
 
-    setAttributes()
-    {
-        for (let attribute in this.attributes) {
-            this.el.setAttribute(attribute, this.attributes[attribute]);
-        }
-    }
-    
-    setEventListeners()
-    {
-        for (let event in this.listeners) {
-            this.el.addEventListener(event, this.listeners[event]);
-        }
-    }
-
     setModel()
     {
         if (this.model)
         {
-            var input = this.el;
-            const p = Object.getOwnPropertyDescriptor(this.component, this.model.var);
+            let input = this.el;
+            let params = unpack(this.component, this.model.var);
+            let p = Object.getOwnPropertyDescriptor(params.obj, params.key);
 
-            this.el.addEventListener(this.model.on, function(){p.set(this.value)}); // use old setter to avoid view - model - view update
-            defProp(this.component, this.model.var, function(){input.value=p.get()}, false);
+            this.el.addEventListener(this.model.on, function(){params.obj[params.key] = this.value}); // NOTE: creates view - model - view update
+            defProp(this.component, this.model.var, function(){input.value=params.obj[params.key]}, false);
 
             input.value = p.get(); // initialize view
         }
+    }
+    
+    setWatchers()
+    {
+        if (this.watched)
+        {
+            let component = this.component;
+            for (let prop of this.watched)
+                defProp(this.component, prop, function(){component.update()}, false);
+        }
+    }
+    
+    setListeners()
+    {
+        for (let event in this.listeners)
+            this.el.addEventListener(event, this.listeners[event]);
+    }
+
+    setAttributes()
+    {
+        for (let attribute in this.attributes)
+            this.el.setAttribute(attribute, this.attributes[attribute]);
     }
 }
 

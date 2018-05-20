@@ -41,12 +41,10 @@ let router = new Router({
 router.addRoute("#home", {
     view: `
         <div>
-            <button c-on:click='test++'>Clic</button>
-            <h3>{{test}}</h3>
+            <input c-model="$parent.obj.txt">
+            <h3 c-watch="$parent.obj.txt">{{$parent.obj.txt}}</h3>
         </div>
-    `,
-
-    model: {test: 0}
+    `
 })
 
 router.addRoute("#404", {

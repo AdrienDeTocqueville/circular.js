@@ -74,6 +74,7 @@ function processDirective(element, directive)
         directiveArg = dir[1];
 
     const parsers = {
+        "model": parseModel,
         "watch": parseWatch,
         "bind": parseBind,
         "for": parseFor,
@@ -90,6 +91,14 @@ function processDirective(element, directive)
         console.error("circular: Unknown directive", directiveName);
 }
 
+function parseModel(el, arg, val)
+{
+    el.model = {
+        on: arg || 'keyup',
+        var: val
+    };
+}
+
 function parseWatch(el, arg, val)
 {
     el.watching.push(val);
@@ -104,7 +113,6 @@ function parseFor(el, arg, val)
 {
     let reg = /([^]*?)\s+(?:in|of)\s+([^]*)/;
     let matches = val.match(reg);
-    // TODO: error checking
     
     el.for = matches[2].trim();
     el.alias = matches[1].trim();
@@ -112,7 +120,7 @@ function parseFor(el, arg, val)
 
 function parseOn(el, arg, val)
 {
-    el.on[arg] = `function($e) {${val};}`;
+    el.on[arg] = val;
 }
 
 function parseIf(el, arg, val)

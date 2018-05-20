@@ -87,8 +87,15 @@ export default class Component
     {
         this.$updater = null;
 
-        let nvroot = this.$render();
-        updateDOM(nvroot, this.$vroot);
-        this.$vroot = nvroot;
+        try
+        {
+            let nvroot = this.$render();
+            updateDOM(nvroot, this.$vroot);
+            this.$vroot = nvroot;
+        }
+        catch (e)
+        {
+            console.error("circular: Property or method", e.message)
+        }
     }
 }

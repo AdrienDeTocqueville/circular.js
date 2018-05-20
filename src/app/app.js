@@ -18,5 +18,7 @@ export default class App
 
         if (this.root.show(this.node))
             this.node = this.root.$vroot.el;
+
+        this.isMounted = true;
     }
 }

@@ -38,7 +38,7 @@ export default class Router
 
 	onHashChange()
 	{
-		if (!this.node)
+		if (!this.node && this.app.isMounted)
 			this.node = document.querySelector(this.selector);
 
 		this.route = window.location.hash || this.defaultRoute;
@@ -60,7 +60,7 @@ export default class Router
 	show(route)
 	{
 		if (!route.component)
-			route.component = route.factory.create();
+			route.component = route.factory.create(this.app.root);
 
 		if (this.currentComponent)
 		{
