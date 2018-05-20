@@ -8,7 +8,7 @@ export default class Router
 			console.error("router: app must be sent as parameter");
 
 		this.app = params.app;
-        this.selector = params.selector || "router";
+		this.selector = params.selector || "router";
 		
 		this.defaultRoute = params.defaultRoute || "";
 		this.notFoundRoute = params.notFoundRoute || "";
@@ -41,14 +41,20 @@ export default class Router
 		if (!this.node)
 			this.node = document.querySelector(this.selector);
 
-
 		this.route = window.location.hash || this.defaultRoute;
 
-		const route = this.routes.filter(route => this.route.match(route.url))[0] ||
-					  this.routes.filter(route => this.notFoundRoute.match(route.url))[0];
+		let match = this.routes.filter(route => this.route.match(route.url))[0];
 
-		if (route)
-			this.show(route);
+		if (match)
+		{
+			this.params = match.url.exec(this.route);
+			this.show(match);
+		}
+		else
+		{
+			match = this.routes.filter(route => this.notFoundRoute.match(route.url))[0];
+			this.show(match);
+		}
 	}
 
 	show(route)

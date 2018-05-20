@@ -3,5 +3,3 @@ import ComponentFactory from "./componentFactory.js"
 
 export {Component, ComponentFactory};
 
-export * from './utils.js'
-

@@ -31,10 +31,10 @@ export default class ComponentFactory
         }
     }
 
-    create()
+    create(parent)
     {
         let model = JSON.parse(JSON.stringify(this.model)); // deep copy
-        let comp = new Component(this.stylesheets, model, this.getRenderer(), this.controller, this.factories);
+        let comp = new Component(this.stylesheets, model, this.getRenderer(), this.controller, this.factories, parent);
         
         return comp;
     }

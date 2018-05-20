@@ -1,13 +1,12 @@
-import {makeReactive} from './index.js'
 import {updateDOM} from '../vdom/index.js'
-import {_c,_e, _t, _l} from '../renderer/index.js'
-import {extend} from '../utils/index.js';
+import {_c, _e, _t, _l} from '../renderer/index.js'
+import {makeReactive, extend} from '../utils/index.js';
 
 
 export default class Component
 {
     // Init
-    constructor(stylesheets, model, renderer, controller, factories)
+    constructor(stylesheets, model, renderer, controller, factories, parent)
     {
         this.stylesheets = stylesheets;
 
@@ -22,6 +21,7 @@ export default class Component
         extend(this,  controller);
 
         this.$factories = factories;
+        this.$parent = parent;
 
         this.$updater = null;
         this.$delay = 200;

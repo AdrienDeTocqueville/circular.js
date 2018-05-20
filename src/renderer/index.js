@@ -1,1 +1,4 @@
-export * from './renderer.js'
+import genNode from './generator.js';
+
+export {genNode};
+export * from './renderer.js';

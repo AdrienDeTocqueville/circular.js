@@ -1,5 +1,6 @@
 import {VNode, createTextNode, createEmptyNode, createComponent} from '../vdom/index.js'
 import {isObject} from '../utils/index.js'
+import {genNode} from "./index.js"
 
 
 export function getRenderer(ASTRoot)
@@ -9,88 +10,15 @@ export function getRenderer(ASTRoot)
 }
 
 
-
-function genNode(node)
+export function _c(params)
 {
-    if (node.type == 1)
-        return genElement(node);
-
-    else if (node.type == 3)
-        return genTextNode(node);
-
-    else
-        throw new Error("Element type not supported (yet?)");
-}
-
-function genElement(elem)
-{
-    let tag = genTag(elem);
-    let data = genData(elem);
-    let children = genChildren(elem);
-
-    let generator = `_c(${tag},${data},${children})`;
-
-    if (elem.if)
-    {
-        generator = `(${elem.if})?${generator}:_e()`;
-    }
-
-    if (elem.for)
-    {
-        generator = `_l(${elem.for},` +
-                    `function(${elem.alias})` +
-                    `{return ${generator};})`;
-    }
-
-    return generator;
-}
-
-function genTextNode(elem)
-{
-    let text = elem.text.replace(/[\n\r]/g, "");
-    text = text.replace("'", "\\'").replace('"', '\\"').replace('`', '\\`');
-    text = text.replace(/{{/g, "'+String(").replace(/}}/g, ")+'") || null;
-
-    return `_t('${text}')`;
-}
-
-
-function genTag(elem)
-{
-    return `'${ elem.tag }'`;
-}
-
-function genData(elem)
-{
-    // attribs
-    let attribs = Object.keys(elem.attribs).map( attrib => `'${attrib}':'${elem.attribs[attrib]}'` );
-    let bindings = elem.bindings.map( binding => `'${binding.arg}':${binding.val}` );
-
-    //on
-    let listeners = Object.keys(elem.on).map( event => `'${event}':${elem.on[event]}` );
-
-    return `{` +
-        `attributes: {${ attribs.concat(bindings).join(',') }},` +
-        `listeners: {${ listeners.join(',') }}` +
-    `}`;
-}
-
-
-function genChildren(elem)
-{
-    return `[${ elem.children.map( child => genNode(child) ).join(',') }]`;
-}
-
-
-export function _c(tag, data, children)
-{
-    let factory = this.$factories[tag];
+    let factory = this.$factories[params.tag];
     
     if (factory)
-        return createComponent(factory);
+        return createComponent(factory, this);
 
     else
-        return new VNode(tag, data, [].concat.apply([], children));
+        return new VNode(params.tag, params.model, params.listeners, params.attributes, [].concat.apply([], params.children), this);
 }
 
 export function _e()
