@@ -95,7 +95,7 @@ export default class Component
         }
         catch (e)
         {
-            console.error("circular: Property or method", e.message)
+            console.error("circular: Property or method", e.message, e);
         }
     }
 }

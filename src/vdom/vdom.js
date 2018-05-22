@@ -16,7 +16,7 @@ export default function updateDOM(nvnode, ovnode, parent)
     }
     else if (haschanged(nvnode, ovnode)) {
         nvnode.createElement();
-        parent.el.replaceChild(nvnode.el, ovnode.el)
+        ovnode.el.parentElement.replaceChild(nvnode.el, ovnode.el)
     }
     else {
         nvnode.el = ovnode.el;
@@ -42,7 +42,7 @@ function haschanged(node1, node2) {
             || (node1.factory !== node2.factory)
             || (node1.isEmpty !== node2.isEmpty)
             || (node1.text !== node2.text)
-            || (JSON.stringify(node1.data) !== JSON.stringify(node2.data));
+            || (JSON.stringify(node1.attributes) !== JSON.stringify(node2.attributes));
 
     return test;
 }
