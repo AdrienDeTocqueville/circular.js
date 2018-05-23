@@ -13,17 +13,6 @@ let app = new App({
         }
     },
 
-    view: `
-        <div>
-            <h1>Home</h1>
-            <button c-on:click='cntr++'>Encore un</button>
-            <p c-if="cntr!=4" c-on:click="obj.txt += obj.txt">{{getText(cntr)}}</p>
-            <p c-if="cntr==4" c-on:click="obj = {txt: 2, zeg: {ze: 3}}">Ou suis-je ?</p>
-            {{obj.txt}}
-            <router></router>
-        </div>
-    `,
-
     controller: {
         getText: function(counter) {
             return counter ? "Adrien " + this.getText(counter-1): '';
@@ -41,33 +30,36 @@ let router = new Router({
 router.addRoute("#home", {
     view: `
         <div>
-            <input c-model="$parent.obj.txt">
-            <h3 c-watch="$parent.obj.txt">{{$parent.obj.txt}}</h3>
-        </div>
-    `
-})
-
-router.addRoute("#404", {
-    model: {test: 0},
-
-    view: `
-        <div>
-            <h1>404: Page not found</h1>
-            <more></more>
+            <input c-model:change="$parent.obj.txt">
+            <child></child>
         </div>
     `,
 
+    model: {
+        txt: false
+    },
+
     components: {
-        more: {
+        child: {
             view: `
-                <div>
-                    <h3>Page {{$router.route}} does not exist</h3>
-                    <button c-on:click="$router.goto('#home')">Home page</button>
-                    <button c-on:click="$router.back()">Previous page</button>
-                </div>
+                <p>
+                    Hierarchy test {{$parent.txt}}
+                </p>
             `
         }
+        
     }
+})
+
+router.addRoute("#404", {
+    view: `
+        <div>
+            <h1>404: Page not found</h1>
+            <h3>Page {{$router.route}} does not exist</h3>
+            <button c-on:click="$router.goto('#home')">Home page</button>
+            <button c-on:click="$router.back()">Previous page</button>
+        </div>
+    `
 })
 
 app.mount();

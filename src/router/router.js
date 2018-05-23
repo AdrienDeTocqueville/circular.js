@@ -53,7 +53,7 @@ export default class Router
 		else
 		{
 			match = this.routes.filter(route => this.notFoundRoute.match(route.url))[0];
-			this.show(match);
+			match && this.show(match);
 		}
 	}
 
@@ -64,12 +64,12 @@ export default class Router
 
 		if (this.currentComponent)
 		{
-			this.currentComponent.hide(this.node);
+			this.currentComponent._hide(this.node);
 			this.currentComponent = null;
 		}
 
-		if (route.component.show(this.node))
-			this.currentComponent = route.component;
+		route.component._show(this.node);
+		this.currentComponent = route.component;
 	}
 
 	goto(route)

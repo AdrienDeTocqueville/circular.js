@@ -19,14 +19,17 @@ export class VNode
 
     createElement()
     {
-        if (this.text || this.text === '') {
+		if (this.text || this.text === '') {
             this.el = document.createTextNode(this.text);
         }
         else if (this.isEmpty) {
             this.el = document.createComment("v-if node");
         }
         else if (this.factory) {
-            this.el = this.factory.create(this.parent).$vroot.el;
+            let c = this.factory.create(this.parent);
+            this.el = c.$vroot.el;
+            
+            c._show();
         }
         else {
             this.el = document.createElement(this.tagName);
@@ -64,7 +67,7 @@ export class VNode
         {
             let component = this.component;
             for (let prop of this.watched)
-                defProp(this.component, prop, function(){component.update()}, false);
+                defProp(this.component, prop, function(){component._update()}, false);
         }
     }
     

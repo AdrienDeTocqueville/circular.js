@@ -8,9 +8,13 @@ export default class Component
     // Init
     constructor(stylesheets, model, renderer, controller, factories, parent)
     {
-        this.stylesheets = stylesheets;
+        this.$stylesheets = stylesheets;
 
-        this.proxify(model);
+        this.$factories = factories;
+        this.$parent = parent;
+
+        this.$updater = null;
+        this.$delay = 0;
 
         this.$render = renderer;
         this._c = _c;
@@ -18,66 +22,57 @@ export default class Component
         this._t = _t;
         this._l = _l;
         
+
+        extend(this, model);
         extend(this,  controller);
 
-        this.$factories = factories;
-        this.$parent = parent;
+        this.onLoad && this.onLoad();
 
-        this.$updater = null;
-        this.$delay = 200;
-
+        this._proxify(model);
         this.__update();
     }
 
-    proxify(model)
+    _proxify(model)
     {
-        extend(this, model);
-
         for (var prop in model)
-            makeReactive(this, prop, this.update.bind(this));
+            makeReactive(this, prop, this._update.bind(this));
     }
 
     // Display
-    show(node)
+    _show(node)
     {
-        if (!this.$vroot.el.isConnected)
-        {
-            this.applyStyle();
+        this._applyStyle();
+
+        if (node && node.parentNode)
             node.parentNode.replaceChild(this.$vroot.el, node);
 
-            return true;
-        }
-
-        return false;
+        this.onShow && this.onShow();
     }
 
-    hide(node)
+    _hide(node)
     {
-        if (this.$vroot.el.isConnected)
-        {
+        if (node && this.$vroot.el.parentNode)
             this.$vroot.el.parentNode.replaceChild(node, this.$vroot.el);
-            this.removeStyle();
+            
+        this._removeStyle();
 
-            return true;
-        }
-
-        return false;
+        this.onHide && this.onHide();
     }
 
-    applyStyle()
+    _applyStyle()
     {
-        for (let stylesheet of this.stylesheets)
+        for (let stylesheet of this.$stylesheets)
             document.head.appendChild(stylesheet);
     }
 
-    removeStyle()
+    _removeStyle()
     {
-        for (let stylesheet of this.stylesheets)
+        for (let stylesheet of this.$stylesheets)
             document.head.removeChild(stylesheet);
     }
 
 
-    update()
+    _update()
     {
         if (!this.$updater)
 		    this.$updater = setTimeout(this.__update.bind(this), this.$delay);

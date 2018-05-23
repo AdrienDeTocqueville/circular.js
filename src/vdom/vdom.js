@@ -2,14 +2,10 @@
  * @description for rendering, root element should be added to component's element
  */
 
-export default function updateDOM(nvnode, ovnode, parent)
+export default function updateDOM(nvnode, ovnode)
 {
     if (!ovnode) {
-        if (parent) {
-            parent.el.appendChild(nvnode.el);
-        } else {
-            nvnode.createElement();
-        }
+        nvnode.createElement();
     }
     else if (!nvnode) {
         ovnode.el.remove();
@@ -26,7 +22,7 @@ export default function updateDOM(nvnode, ovnode, parent)
             const nl = nvnode.children.length
             const ol = ovnode.children.length
             for (let i = 0; i < nl || i < ol; i++) {
-                updateDOM(nvnode.children[i], ovnode.children[i], nvnode)
+                updateDOM(nvnode.children[i], ovnode.children[i])
             }
         }
     }
