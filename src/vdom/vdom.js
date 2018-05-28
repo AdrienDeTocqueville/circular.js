@@ -7,7 +7,7 @@ export default function updateDOM(nvnode, ovnode, parent)
     if (!ovnode) {
         nvnode.createElement();
         if (parent)
-            parent.el.parentElement.appendChild(nvnode.el);
+            parent.el.appendChild(nvnode.el);
     }
     else if (!nvnode) {
         ovnode.el.remove();
