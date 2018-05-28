@@ -23,7 +23,7 @@ export class VNode
             this.el = document.createTextNode(this.text);
         }
         else if (this.isEmpty) {
-            this.el = document.createComment("v-if node");
+            this.el = document.createComment("c-if node");
         }
         else if (this.factory) {
             let c = this.factory.create(this.parent);
