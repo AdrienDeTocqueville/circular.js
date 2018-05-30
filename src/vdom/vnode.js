@@ -2,34 +2,38 @@ import { defProp, unpack } from "../utils/index.js";
 
 export class VNode
 {
-    constructor(tagName, model, watched, listeners, attributes, children, component)
+    constructor(params, component)
     {
-        this.tagName = tagName;
-
-        this.model = model;
-        this.watched = watched;
-        this.listeners = listeners;
-        this.attributes = attributes;
-
-        this.children = children;
+        if (params)
+        {
+            this.tagName = params.tag;
+    
+            this.model = params.model;
+            this.watched = params.watched;
+            this.listeners = params.listeners;
+            this.attributes = params.attributes;
+            
+            this.children = [].concat.apply([], params.children);
+        }
         
         this.component = component;
+        this.type = 1;
         this.el = undefined;
+    }
+
+    updateDOM(oldDOM)
+    {
+        if (!oldDOM)
+            this.createElement();
     }
 
     createElement()
     {
-		if (this.text || this.text === '') {
+		if (this.text !== undefined) {
             this.el = document.createTextNode(this.text);
         }
         else if (this.isEmpty) {
-            this.el = document.createComment("v-if node");
-        }
-        else if (this.factory) {
-            let c = this.factory.create(this.parent);
-            this.el = c.$vroot.el;
-            
-            c._show();
+            this.el = document.createComment("c-if node");
         }
         else {
             this.el = document.createElement(this.tagName);
@@ -38,11 +42,6 @@ export class VNode
             this.setWatchers();
             this.setListeners();
             this.setAttributes();
-            
-            this.children.forEach(child => {
-                child.createElement();
-                this.el.appendChild(child.el);
-            });
         }
     }
 
@@ -82,29 +81,49 @@ export class VNode
         for (let attribute in this.attributes)
             this.el.setAttribute(attribute, this.attributes[attribute]);
     }
+
+    replaceChild(n, o)
+    {
+        for (let child of children)
+        {
+            if (child == o)
+            {
+                child = n;
+                n.parent = this;
+                this.el.replaceChild(n.el, o.el);
+
+                return;
+            }
+        }
+    }
+
+    isRoot()
+    {
+        return (this.component && this == this.component.$vroot);
+    }
 }
 
-export function createComponent(factory, parent)
+export function createComponent(factory, parentComponent)
 {
-    let vnode = new VNode(undefined, undefined, undefined);
-    vnode.factory = factory;
-    vnode.parent = parent;
+    let c = factory.create(parentComponent);
 
-    return vnode;
+    return c.$vroot;
 }
 
 export function createEmptyNode()
 {
-    let vnode = new VNode(undefined, undefined, undefined);
+    let vnode = new VNode();
     vnode.isEmpty = true;
+    vnode.type = 2;
 
     return vnode;
 }
 
 export function createTextNode(text)
 {
-    let vnode = new VNode(undefined, undefined, undefined);
+    let vnode = new VNode();
     vnode.text = text;
+    vnode.type = 3;
 
     return vnode;
 }

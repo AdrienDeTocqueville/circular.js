@@ -18,7 +18,7 @@ export function _c(params)
         return createComponent(factory, this);
 
     else
-        return new VNode(params.tag, params.model, params.watched, params.listeners, params.attributes, [].concat.apply([], params.children), this);
+        return new VNode(params, this);
 }
 
 export function _e()

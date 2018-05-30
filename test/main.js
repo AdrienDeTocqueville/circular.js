@@ -1,13 +1,8 @@
 import App from '/dist/circular.js'
-import Router from '/dist/router.js'
 
 let app = new App({
-    selector: "app",
-
-    stylesheets: ['home.css'],
-
     model: {
-        cntr: 0,
+        cntr: 3,
         obj: {
             txt: "bonjour"
         }
@@ -15,51 +10,22 @@ let app = new App({
 
     controller: {
         getText: function(counter) {
-            return counter ? "Adrien " + this.getText(counter-1): '';
+            return counter ? this.obj.txt + this.getText(counter-1): '';
         }
-    }
-});
-
-let router = new Router({
-    app,
-    selector: "router",
-    defaultRoute: "#home",
-    notFoundRoute: '#404'
-})
-
-router.addRoute("#home", {
-    view: `
-        <div>
-            <input c-model:change="$parent.obj.txt">
-            <child></child>
-        </div>
-    `,
-
-    model: {
-        txt: false
     },
 
     components: {
-        child: {
+        home: {
             view: `
-                <p>
-                    Hierarchy test {{$parent.txt}}
-                </p>
-            `
-        }
+                <home>
+                    <input c-model:change="$parent.obj.txt">
+                    <p>{{$parent.cntr}}</p>
+                </home>
+            `,
         
+            model: {
+                txt: false
+            }
+        }
     }
-})
-
-router.addRoute("#404", {
-    view: `
-        <div>
-            <h1>404: Page not found</h1>
-            <h3>Page {{$router.route}} does not exist</h3>
-            <button c-on:click="$router.goto('#home')">Home page</button>
-            <button c-on:click="$router.back()">Previous page</button>
-        </div>
-    `
-})
-
-app.mount();
+}).mount("app");

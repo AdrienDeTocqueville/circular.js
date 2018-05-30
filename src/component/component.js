@@ -1,4 +1,4 @@
-import {updateDOM} from '../vdom/index.js'
+import {updateTree} from '../vdom/index.js'
 import {_c, _e, _t, _l} from '../renderer/index.js'
 import {makeReactive, extend} from '../utils/index.js';
 
@@ -6,10 +6,8 @@ import {makeReactive, extend} from '../utils/index.js';
 export default class Component
 {
     // Init
-    constructor(stylesheets, model, renderer, controller, factories, parent)
+    constructor(model, renderer, controller, factories, parent)
     {
-        this.$stylesheets = stylesheets;
-
         this.$factories = factories;
         this.$parent = parent;
 
@@ -29,7 +27,7 @@ export default class Component
         this.onLoad && this.onLoad();
 
         this._proxify(model);
-        this.__update();
+        this._render();
     }
 
     _proxify(model)
@@ -41,8 +39,6 @@ export default class Component
     // Display
     _show(node)
     {
-        this._applyStyle();
-
         if (node && node.parentNode)
             node.parentNode.replaceChild(this.$vroot.el, node);
 
@@ -53,8 +49,6 @@ export default class Component
     {
         if (node && this.$vroot.el.parentNode)
             this.$vroot.el.parentNode.replaceChild(node, this.$vroot.el);
-            
-        this._removeStyle();
 
         this.onHide && this.onHide();
     }
@@ -82,15 +76,27 @@ export default class Component
     {
         this.$updater = null;
 
+        let oldVroot = this.$vroot;
+        this._render();
+
+        updateTree(this.$vroot, oldVroot);
+
+        if (oldVroot.parent)
+            oldVroot.parent.replaceChild(this.$vroot, oldVroot);
+        else
+            this._show(oldVroot.el);
+    }
+
+    _render()
+    {
         try
         {
-            let nvroot = this.$render();
-            updateDOM(nvroot, this.$vroot);
-            this.$vroot = nvroot;
+            this.$vroot = this.$render();
         }
         catch (e)
         {
-            console.error("circular: Property or method", e.message, e);
+            console.error("circular: Property or method", e.message);
+            console.error(e);
         }
     }
 }

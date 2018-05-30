@@ -9,20 +9,12 @@ export default class ComponentFactory
 {
     constructor(params)
     {
-        this.stylesheets = [];
-    
         this.model = params.model || {};
         this.render = params.view;
         this.controller = params.controller || {};
 
-        this.factories = {};
+        this.factories = params.factories || {};
         
-
-        if (params.stylesheets)
-        {
-            for (var file of params.stylesheets)
-                this.stylesheets.push(this.createStyleheetElement(file));
-        }
         
         if (params.components)
         {
@@ -34,19 +26,9 @@ export default class ComponentFactory
     create(parent)
     {
         let model = JSON.parse(JSON.stringify(this.model)); // deep copy
-        let comp = new Component(this.stylesheets, model, this.getRenderer(), this.controller, this.factories, parent);
+        let comp = new Component(model, this.getRenderer(), this.controller, this.factories, parent);
         
         return comp;
-    }
-
-    createStyleheetElement(file)
-    {
-        var el = document.createElement("link");
-            el.setAttribute("rel", "stylesheet");
-            el.setAttribute("type", "text/css");
-            el.setAttribute("href", file);
-
-        return el;
     }
 
     getRenderer()

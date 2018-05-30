@@ -1,4 +1,5 @@
 import {ComponentFactory} from '../component/index.js';
+import {updateTree} from '../vdom/index.js'
 
 
 export default class App
@@ -22,8 +23,10 @@ export default class App
         if (!this.root.view)
             this.root.view = this.node.outerHTML;
 
-        this.root = (new ComponentFactory(this.root)).create();
-        this.root._show(this.node);
+        this.root = (new ComponentFactory(this.root)).create(); // create vdom
+        updateTree(this.root.$vroot); // create dom
+        this.root._show(this.node); // append dom
+        // TODO: callbacks
         
         this.node = this.root.$vroot.el;
 

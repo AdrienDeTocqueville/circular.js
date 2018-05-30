@@ -3,15 +3,13 @@
     <head>
         <meta charset="UTF-8">
         <title>Test circular</title>
-
-        <link rel="stylesheet" type="text/css" src="home.css">
     </head>
 
     <body>
         <app c-bind:id='obj.txt'>
             <h1 c-on:click="cntr++">Home</h1>
-            <p c-if="cntr%2 == 0">{{getText(cntr)}}</p>
-            <home c-if="cntr%2 == 0"></home>
+            <p c-if="cntr%2 == 1">{{getText(cntr)}}</p>
+            <router></router>
         </app>
     </body>
     

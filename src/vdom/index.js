@@ -1,3 +1,3 @@
 export * from './vnode.js'
-import updateDOM from './vdom.js'
-export {updateDOM} 
+import updateTree from './vdom.js'
+export {updateTree} 
