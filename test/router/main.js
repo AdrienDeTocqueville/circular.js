@@ -30,6 +30,7 @@ router.addRoute("#home", {
         <home>
             <input c-model:change="$parent.obj.txt">
             <p>{{$parent.cntr}}</p>
+            <h6>{{txt}}</h6>
             <child></child>
         </home>
     `,
@@ -41,7 +42,7 @@ router.addRoute("#home", {
     components: {
         child: {
             view: `
-                <p>
+                <p c-on:click="$parent.txt = $parent.txt.toUpperCase()">
                     Hierarchy test: {{$parent.txt}}
                 </p>
             `

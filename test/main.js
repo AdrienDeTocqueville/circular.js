@@ -2,10 +2,11 @@ import App from '/dist/circular.js'
 
 let app = new App({
     model: {
-        cntr: 3,
+        cntr: 1,
         obj: {
             txt: "bonjour"
-        }
+        },
+        txt: 'Home'
     },
 
     controller: {
@@ -20,11 +21,23 @@ let app = new App({
                 <home>
                     <input c-model:change="$parent.obj.txt">
                     <p>{{$parent.cntr}}</p>
+                    <h6>{{txt}}</h6>
+                    <child></child>
                 </home>
             `,
-        
+
             model: {
-                txt: false
+                txt: "success"
+            },
+        
+            components: {
+                child: {
+                    view: `
+                        <p c-on:click="$parent.txt = $parent.txt.toUpperCase()">
+                            Hierarchy test: {{$parent.txt}}
+                        </p>
+                    `
+                }
             }
         }
     }

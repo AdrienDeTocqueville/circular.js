@@ -13,9 +13,9 @@ export function getRenderer(ASTRoot)
 export function _c(params)
 {
     let factory = this.$factories[params.tag];
-    
+
     if (factory)
-        return createComponent(factory, this);
+        return createComponent(params, this, factory);
 
     else
         return new VNode(params, this);

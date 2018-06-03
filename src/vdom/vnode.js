@@ -29,19 +29,19 @@ export class VNode
 
     createElement()
     {
-		if (this.text !== undefined) {
-            this.el = document.createTextNode(this.text);
-        }
-        else if (this.isEmpty) {
-            this.el = document.createComment("c-if node");
-        }
-        else {
+		if (this.type == 1){
             this.el = document.createElement(this.tagName);
           
             this.setModel();
             this.setWatchers();
             this.setListeners();
             this.setAttributes();
+        }
+        else if (this.type == 2)  {
+            this.el = document.createComment("c-if node");
+        }
+        else {
+            this.el = document.createTextNode(this.text);
         }
     }
 
@@ -84,7 +84,7 @@ export class VNode
 
     replaceChild(n, o)
     {
-        for (let child of children)
+        for (let child of this.children)
         {
             if (child == o)
             {
@@ -103,11 +103,14 @@ export class VNode
     }
 }
 
-export function createComponent(factory, parentComponent)
+export function createComponent(params, parentComponent, factory)
 {
-    let c = factory.create(parentComponent);
+    let vnode = new VNode(params);
+    vnode.parentComponent = parentComponent;
+    vnode.factory = factory;
+    vnode.type = 4;
 
-    return c.$vroot;
+    return vnode;
 }
 
 export function createEmptyNode()

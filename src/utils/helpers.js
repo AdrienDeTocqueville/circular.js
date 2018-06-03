@@ -1,6 +1,6 @@
 /**
  * 
- * @param {object} dest 
+ * @param {object} dest
  * @param {object} src
  */
 export function extend(dest, src) {
@@ -12,7 +12,7 @@ export function extend(dest, src) {
 
 /**
  * 
- * @param {object} obj  
+ * @param {object} obj
  * 
  * @returns {boolean}
  * 

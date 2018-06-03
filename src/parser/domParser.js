@@ -38,9 +38,8 @@ export function parseDOM(element)
 
 /**
  * 
- * @param {string} tag 
- * @param {array} attribs 
- * @param {ASTElement} parent 
+ * @param {string} tag
+ * @param {array} attribs
  */
 function createASTElement(tag, attribs)
 {

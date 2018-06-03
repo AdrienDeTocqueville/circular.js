@@ -10,8 +10,12 @@ export default class Router
 		this.app = params.app;
 		this.selector = params.selector || "router";
 		
-		this.defaultRoute = params.defaultRoute || "";
-		this.notFoundRoute = params.notFoundRoute || "";
+		this.defaultRoute = {
+			url: params.defaultRoute || ""
+		};
+		this.notFoundRoute = {
+			url: params.notFoundRoute || ""
+		};
 
 		this.routes = [];
 		this.route = window.location.hash;
@@ -25,18 +29,24 @@ export default class Router
 		this.onHashChange = this.onHashChange.bind(this);
 
 		window.addEventListener('hashchange', this.onHashChange);
-		window.addEventListener('DOMContentLoaded', this.onHashChange);
 	}
 
 	addRoute(route, component)
 	{
-	    this.routes.push(
-	    {
+		let newRoute = {
 			url: new RegExp(route, 'gi'),
 			stylesheets: this.buildStylesheets(component.stylesheets),
 			factory: new ComponentFactory(component),
 			component: null
-		});
+		};
+
+	    this.routes.push(newRoute);
+
+		if (!this.defaultRoute.route && this.defaultRoute.url.match(newRoute.url))
+			this.defaultRoute.route = newRoute;
+
+		if (!this.notFoundRoute.route && this.notFoundRoute.url.match(newRoute.url))
+			this.notFoundRoute.route = newRoute;
 
 		if (!this.current)
 			this.onHashChange();
@@ -56,17 +66,35 @@ export default class Router
 
 	onHashChange()
 	{
-		this.route = window.location.hash || this.defaultRoute;
+		this.route = window.location.hash;
 
-		let match = this.routes.filter(route => (this.current != route) && this.route.match(route.url))[0];
+		if (!this.route)
+		{
+			console.log("default route", this.route);
+			this.current = this.defaultRoute.route;
+			return;
+		}
+
+		for (let route of this.routes)
+		{
+			if (this.route.search(route.url) != -1)
+			{
+				if (route == this.current)
+					return;
+
+				var match = route;
+				break;
+			}
+		}
+		console.log("m", match)
 
 		if (match)
 		{
+			console.log("route match", this.route);
+
 			if (this.current)
 			{
 				console.log("router hide", this.current);
-
-				
 			}
 
 			this.params = match.url.exec(this.route);
@@ -75,6 +103,8 @@ export default class Router
 		}
 		else
 		{
+			console.log("route unknown", this.route);
+
 			match = this.routes.filter(route => this.notFoundRoute.match(route.url))[0];
 			this.current = match;
 			// match && this.show(match);
@@ -83,10 +113,10 @@ export default class Router
 
 	create(parent)
 	{
-		if (!this.current.component)
-			this.current.component = this.current.factory.create(parent);
+		// if (!this.current.component)
+		// 	this.current.component = this.current.factory.create(parent);
 
-		return this.current.component;
+		return this.current.factory.create(parent);
 		// if (this.currentComponent)
 		// {
 		// 	this.currentComponent._hide(this.node);

@@ -1,165 +1,160 @@
 /**
- * @description for rendering, root element should be added to component's element
+ * 
+ * @param {VNode} newNode
+ * @param {VNode} oldNode
+ * 
+ * Analyze VDOM modifications to update DOM. Recursive.
  */
-
-function updateDOM(nvnode, ovnode)
-{
-    if (!ovnode) {
-        nvnode.createElement();
-    }
-    else if (!nvnode) {
-        ovnode.el.remove();
-    }
-    else if (haschanged(nvnode, ovnode)) {
-        nvnode.createElement();
-        ovnode.el.parentElement.replaceChild(nvnode.el, ovnode.el)
-    }
-    else {
-        nvnode.el = ovnode.el;
-
-        if (nvnode.children)
-        {
-            const nl = nvnode.children.length
-            const ol = ovnode.children.length
-            for (let i = 0; i < nl || i < ol; i++) {
-                updateDOM(nvnode.children[i], ovnode.children[i])
-            }
-        }
-    }
-}
-
-/**
- * @description return true if node changed
- * @param {*} node1 
- * @param {*} node2 
- */
-function haschanged(node1, node2)
-{
-    let test = (node1.tagName !== node2.tagName)
-            || (node1.factory !== node2.factory)
-            || (node1.isEmpty !== node2.isEmpty)
-            || (node1.text !== node2.text)
-            || (JSON.stringify(node1.attributes) !== JSON.stringify(node2.attributes));
-
-    return test;
-}
-
 export default function updateTree(newNode, oldNode)
 {
-	if (newNode.children)
-	{
-		let o = oldNode ? oldNode.children: [];
-		let n = newNode.children;
-		let d = childDiff(o, n);
-
-		let currO = 0;
-		let currD = 0;
-
-		for (let newChild of n)
-		{
-			if (currD < d.length && newChild.tagName == d[currD].tagName)
-			{
-				while (o[currO].tagName != newChild.tagName)
-				{
-					if (o[currO].isRoot())
-						console.log("on hide", o[currO].tagName);
-
-					currO++;
-				}
-
-				updateTree(newChild, o[currO]);
-
-				currO++;
-				currD++;
-			}
-			else
-			{
-				updateTree(newChild);
-				if (newChild.isRoot())
-					console.log("on show", newChild.tagName);
-			}
-
-		}
-
-		while (currO < o.length)
-		{
-			if (o[currO].isRoot())
-				console.log("on hide", o[currO].tagName);
-
-			currO++;
-		}
-	}
-
-
-	if (oldNode && !diff(oldNode, newNode))
-	{
-		newNode.el = oldNode.el;
-
-		while (newNode.el.lastChild)
-		newNode.el.removeChild(newNode.el.lastChild);
-	}
+	if (oldNode)
+		patch(newNode, oldNode);
 	else
 		newNode.createElement();
 
 
 	if (newNode.children)
 	{
-		for (let child of newNode.children)
+		let currO = 0, currN = 0, currC = 0;
+		let childNodes = newNode.el.childNodes;
+
+		let o = oldNode ? oldNode.children: [];
+		let n = newNode.children;
+		let c = lcs(o, o.length, n, n.length);
+
+
+		for (; currN < n.length; currN++)
 		{
-			child.parent = newNode;
-			newNode.el.appendChild(child.el);
+			n[currN].parent = newNode;
+
+			if (currC < c.length && n[currN].tagName == c[currC].tagName) // Node needs to be updated
+			{
+				while (o[currO].tagName != n[currN].tagName) // Removes deleted children
+				{
+					if (o[currO].isRoot())
+						console.log("on hide", o[currO].tagName);
+
+					newNode.el.removeChild(o[currO].el);
+					currO++;
+				}
+
+				updateTree(n[currN], o[currO]);
+
+				if (n[currN].isRoot())
+					console.log("on show", n[currN].tagName);
+
+
+				if (currN >= childNodes.length)
+					newNode.el.appendChild(n[currN].el);
+				else
+					newNode.el.replaceChild(n[currN].el, o[currO].el);
+
+				currO++; currC++;
+			}
+			else // Node needs to be created
+			{
+				updateTree(n[currN]);
+
+				if (n[currN].isRoot())
+					console.log("on show", n[currN].tagName);
+
+
+				if (currN >= childNodes.length-1)
+					newNode.el.appendChild(n[currN].el);
+				else
+					newNode.el.insertBefore(n[currN].el, childNodes[currN+1]);
+			}
+		}
+
+		// Remaining children need to be removed
+		while (currO < o.length)
+		{
+			if (o[currO].isRoot())
+				console.log("on hide", o[currO].tagName);
+
+			newNode.el.removeChild(newNode.el.lastChild);
+			currO++;
 		}
 	}
 }
 
-function childDiff(a, b)
-{
-	return lcs(a, a.length, b, b.length);
-}
-
+/**
+ * 
+ * @param {array} a vnodes
+ * @param {integer} al length of array a
+ * @param {array} b vnodes
+ * @param {integer} bl length of array b
+ * 
+ * @returns {array} longest common subsequence of vnodes
+ * 
+ * https://en.wikipedia.org/wiki/Longest_common_subsequence_problem
+ * returns the longest subsequence of vnodes common to a and b
+ * (some of these nodes may still need an update)
+ */
 function lcs(a, al, b, bl)
 {
     if (al == 0 || bl == 0)
         return [];
 
-    if (a[al - 1].tagName == b[bl - 1].tagName)
-        return lcs(a, al-1, b, bl-1).concat(a[al - 1]);
+    if (a[al-1].tagName == b[bl-1].tagName)
+        return lcs(a, al-1, b, bl-1).concat(b[bl-1]);
 
     var x = lcs(a, al, b, bl-1);
     var y = lcs(a, al-1, b, bl);
     return (x.length > y.length) ? x : y;
 }
 
-function diff(a, b)
+/**
+ * 
+ * @param {VNode} a new vnode
+ * @param {VNode} b old vnode
+ * 
+ * Generates, modifies or copies the new DOM Node from the old one
+ */
+function patch(a, b)
 {
-	if (a.type != b.type)
-		return true;
+	if (a.type != b.type) // Nothing to optimize
+	{
+		a.createElement();
+		return;
+	}
 		
+	a.el = b.el;
 	switch (a.type)
 	{
 		case 1: // element
+			// This case is not very efficient
+			let updated = false;
 			if ((a.tagName != b.tagName)
 			|| (a.listeners || b.listeners)
 			|| (JSON.stringify(a.attributes) != JSON.stringify(b.attributes)))
-				return true;
+				updated = true;
 
-			if (a.model || b.model)
+			else if (a.model || b.model)
 			{
-				if (a.model && b.model)
-				{
-					if ((a.model.on != b.model.on) || (a.model.var != b.model.var))
-						return true;
-				}
-				else
-					return true;
+				if (!a.model || !b.model)
+					updated = true;
+				else if ((a.model.on != b.model.on) || (a.model.var != b.model.var))
+					updated = true;
 			}
 
-			return false;
+			if (updated)
+				a.createElement();
+
+			return;
 			
 		case 2: // comment
-			return false;
+			return;
 		
 		case 3: // text
-			return a.text !== b.text;
+			a.el.nodeValue = a.text;
+			return;
+		
+		case 4: // comoponent
+			console.log("component render")
+			return;
+
+		default:
+			console.log("patch() error", a, b);
 	}
 }
