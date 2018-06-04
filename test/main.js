@@ -1,6 +1,14 @@
-import App from '/dist/circular.js'
+import App from '../dist/circular.js'
 
 let app = new App({
+    view: `
+        <app>
+            <h1 c-on:click="cntr++">Home</h1>
+            <p c-if="cntr%2 == 1">{{getText(cntr)}}</p>
+            <home></home>
+        </app>
+    `,
+
     model: {
         cntr: 1,
         obj: {
@@ -19,10 +27,9 @@ let app = new App({
         home: {
             view: `
                 <home>
-                    <input c-model:change="$parent.obj.txt">
+                    <input c-model:keyup="$parent.obj.txt">
                     <p>{{$parent.cntr}}</p>
                     <h6>{{txt}}</h6>
-                    <child></child>
                 </home>
             `,
 

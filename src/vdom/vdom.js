@@ -46,7 +46,7 @@ export default function updateTree(newNode, oldNode)
 
 				if (currN >= childNodes.length)
 					newNode.el.appendChild(n[currN].el);
-				else
+				else if (n[currN].el != o[currO].el)
 					newNode.el.replaceChild(n[currN].el, o[currO].el);
 
 				currO++; currC++;
@@ -80,9 +80,9 @@ export default function updateTree(newNode, oldNode)
 
 /**
  * 
- * @param {array} a vnodes
+ * @param {array} a old vnodes
  * @param {integer} al length of array a
- * @param {array} b vnodes
+ * @param {array} b new vnodes
  * @param {integer} bl length of array b
  * 
  * @returns {array} longest common subsequence of vnodes
@@ -96,7 +96,7 @@ function lcs(a, al, b, bl)
     if (al == 0 || bl == 0)
         return [];
 
-    if (a[al-1].tagName == b[bl-1].tagName)
+    if (a[al-1].tagName == b[bl-1].tagName || (a[al-1].factory && b[bl-1].factory && (a[al-1].componentTag == b[bl-1].tagName)))
         return lcs(a, al-1, b, bl-1).concat(b[bl-1]);
 
     var x = lcs(a, al, b, bl-1);
@@ -113,48 +113,56 @@ function lcs(a, al, b, bl)
  */
 function patch(a, b)
 {
-	if (a.type != b.type) // Nothing to optimize
+	if (a.type == b.type || (a.factory && b.factory))
 	{
+		switch (a.type)
+		{
+			case 1: // element
+				// This case is not very efficient
+				let updated = false;
+				if ((a.tagName != b.tagName)
+				|| (a.listeners || b.listeners)
+				|| (JSON.stringify(a.attributes) != JSON.stringify(b.attributes)))
+					updated = true;
+
+				// else if (a.model || b.model)
+				// {
+				// 	if (!a.model || !b.model)
+				// 		updated = true;
+				// 	else if ((a.model.on != b.model.on) || (a.model.var != b.model.var))
+				// 		updated = true;
+				// }
+
+				if (updated)
+					a.createElement();
+				else
+					a.el = b.el;
+
+				return;
+
+			case 2: // comment
+				a.el = b.el;
+				return;
+
+			case 3: // text
+				a.el = b.el;
+				a.el.nodeValue = a.text;
+				return;
+
+			case 4: // component
+				a.component = b.component;
+                a.component.$vroot = a;
+
+                a.copyComponent(b);
+
+				a.el = b.el;
+				return;
+
+			default:
+				console.error("Unknown vnode type", a.type);
+				consle.error(a, b);
+		}
+	}
+	else // Nothing to optimize
 		a.createElement();
-		return;
-	}
-		
-	a.el = b.el;
-	switch (a.type)
-	{
-		case 1: // element
-			// This case is not very efficient
-			let updated = false;
-			if ((a.tagName != b.tagName)
-			|| (a.listeners || b.listeners)
-			|| (JSON.stringify(a.attributes) != JSON.stringify(b.attributes)))
-				updated = true;
-
-			else if (a.model || b.model)
-			{
-				if (!a.model || !b.model)
-					updated = true;
-				else if ((a.model.on != b.model.on) || (a.model.var != b.model.var))
-					updated = true;
-			}
-
-			if (updated)
-				a.createElement();
-
-			return;
-			
-		case 2: // comment
-			return;
-		
-		case 3: // text
-			a.el.nodeValue = a.text;
-			return;
-		
-		case 4: // comoponent
-			console.log("component render")
-			return;
-
-		default:
-			console.log("patch() error", a, b);
-	}
 }

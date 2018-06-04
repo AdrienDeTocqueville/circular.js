@@ -39,7 +39,7 @@ export default class Component
     // Display
     _show(node)
     {
-        if (node && node.parentNode)
+        if (node && node.parentNode && (this.$vroot.el != node))
             node.parentNode.replaceChild(this.$vroot.el, node);
 
         this.onShow && this.onShow();
@@ -95,7 +95,7 @@ export default class Component
         }
         catch (e)
         {
-            console.error("circular: Property or method", e.message);
+            console.error("circular:", e.message);
             console.error(e);
         }
     }

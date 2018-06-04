@@ -49,7 +49,6 @@ function createASTElement(tag, attribs)
         attribs: {},
         children: [],
 
-        watching: [],
         bindings: [],
         on: {},
     }
@@ -74,7 +73,6 @@ function processDirective(element, directive)
 
     const parsers = {
         "model": parseModel,
-        "watch": parseWatch,
         "bind": parseBind,
         "for": parseFor,
         "on": parseOn,
@@ -96,11 +94,6 @@ function parseModel(el, arg, val)
         on: arg || 'keyup',
         var: val
     };
-}
-
-function parseWatch(el, arg, val)
-{
-    el.watching.push(val);
 }
 
 function parseBind(el, arg, val)

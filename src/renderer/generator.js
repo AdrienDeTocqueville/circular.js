@@ -17,13 +17,12 @@ function genElement(elem)
     let tag = genTag(elem);
 
     let model = genModel(elem);
-    let watched = genWatched(elem);
     let listeners = genListeners(elem);
     let attributes = genAttributes(elem);
 
     let children = genChildren(elem);
 
-    let generator = `_c({${tag}${model}${watched}${listeners}${attributes}${children}})`;
+    let generator = `_c({${tag}${model}${listeners}${attributes}${children}})`;
 
     if (elem.if)
     {
@@ -58,11 +57,6 @@ function genTag(elem)
 function genModel(elem)
 {
     return elem.model ? `,model:{on:'${elem.model.on}',var:'${elem.model.var}',f:function(){${elem.model.var}=this.value}}` : ``;
-}
-
-function genWatched(elem)
-{
-    return elem.watching.length? `,watched:['${ elem.watching.join(',') }']`: '';
 }
 
 function genListeners(elem)

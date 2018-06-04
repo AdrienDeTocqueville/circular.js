@@ -1,3 +1,4 @@
+import updateTree from './vdom.js'
 import { defProp, unpack } from "../utils/index.js";
 
 export class VNode
@@ -9,7 +10,6 @@ export class VNode
             this.tagName = params.tag;
     
             this.model = params.model;
-            this.watched = params.watched;
             this.listeners = params.listeners;
             this.attributes = params.attributes;
             
@@ -29,19 +29,36 @@ export class VNode
 
     createElement()
     {
-		if (this.type == 1){
-            this.el = document.createElement(this.tagName);
-          
-            this.setModel();
-            this.setWatchers();
-            this.setListeners();
-            this.setAttributes();
-        }
-        else if (this.type == 2)  {
-            this.el = document.createComment("c-if node");
-        }
-        else {
-            this.el = document.createTextNode(this.text);
+        switch (this.type)
+        {
+            case 1:
+                this.el = document.createElement(this.tagName);
+              
+                this.setModel();
+                this.setListeners();
+                this.setAttributes();
+                return;
+
+            case 2:
+                this.el = document.createComment("c-if node");
+                return;
+
+            case 3:
+                this.el = document.createTextNode(this.text);
+                return;
+
+            case 4:
+                this.component = this.factory.create(this.parentComponent);
+
+                let nvroot = this.component.$vroot;
+                this.component.$vroot = this;
+
+                this.copyComponent(nvroot);
+                this.createElement();
+                return;
+
+            default:
+                console.error("circular: Unknown vnode type");
         }
     }
 
@@ -57,16 +74,6 @@ export class VNode
             defProp(this.component, this.model.var, function(){input.value=params.obj[params.key]}, false);
 
             input.value = p.get(); // initialize view
-        }
-    }
-    
-    setWatchers()
-    {
-        if (this.watched)
-        {
-            let component = this.component;
-            for (let prop of this.watched)
-                defProp(this.component, prop, function(){component._update()}, false);
         }
     }
     
@@ -90,6 +97,7 @@ export class VNode
             {
                 child = n;
                 n.parent = this;
+                if (n.el != o.el)
                 this.el.replaceChild(n.el, o.el);
 
                 return;
@@ -100,6 +108,21 @@ export class VNode
     isRoot()
     {
         return (this.component && this == this.component.$vroot);
+    }
+
+    copyComponent(src)
+    {
+        this.componentTag = this.tagName;
+        this.tagName = src.tagName;
+
+        this.model = src.model;
+        this.listeners = src.listeners;
+        this.attributes = src.attributes;
+        this.isEmpty = src.isEmpty;
+        this.text = src.text;
+
+        this.children = src.children;
+        this.type = src.type;
     }
 }
 
