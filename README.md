@@ -37,6 +37,7 @@ let app = new App({
 
 app.mount();
 ````
+The view must contain HTML code and exactly one root element
 
 ### Templating
 Let's make use of the template engine.
@@ -157,4 +158,43 @@ new App({
         }
     }
 }).mount();
+````
+
+### Nested components
+You can nest components without limits
+
+### Router
+You can import a router via
+
+````javascript
+import Router from '/dist/router.js'
+````
+
+and use it like this
+
+````javascript
+let app = new App({
+	view: '<myRouter></myRouter>'
+});
+
+let router = new Router({
+	app,
+	selector: "myRouter",
+	defaultRoute: "#/home",
+	notFoundRoute: "#/404"
+});
+
+router.addRoute("#/home", {
+	view: `
+		<div>
+			<p>Home</p>
+			<a href="#/nowhere">Go nowhere</a>
+		</div>
+	`
+});
+router.addRoute("#/404", {
+	view: '<p>Page not found</p>'
+});
+
+app.mount();
 ````
